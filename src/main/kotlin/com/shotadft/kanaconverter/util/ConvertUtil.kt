@@ -5,13 +5,16 @@ package com.shotadft.kanaconverter.util
  * @since 1.1
  */
 internal object ConvertUtil {
+    private fun isHiragana(c: Char): Boolean = c in '\u3041'..'\u3096'
+    private fun isKatakana(c: Char): Boolean = c in '\u30A1'..'\u30F6'
+
     /**
      * @author Shotadft
      * @since 1.1
      */
     @JvmStatic
     fun toHiragana(s: CharSequence) =
-        s.map { if (it in '\u30A1'..'\u30F6') it - 0x60 else it }.joinToString("")
+        s.map { if (isKatakana(it)) it - 0x60 else it }.joinToString("")
 
     /**
      * @author Shotadft
@@ -19,5 +22,5 @@ internal object ConvertUtil {
      */
     @JvmStatic
     fun toKatakana(s: CharSequence) =
-        s.map { if (it in '\u3041'..'\u3096') it + 0x60 else it }.joinToString("")
+        s.map { if (isHiragana(it)) it + 0x60 else it }.joinToString("")
 }

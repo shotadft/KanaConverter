@@ -11,8 +11,21 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import java.io.File
 import java.util.zip.CRC32
 
+/**
+ * @author Shotadft
+ * @since 1.1
+ */
 internal class CacheManager {
 
+    /**
+     * Saves the given map to a cache file. The data is serialized to JSON,
+     * compressed with Gzip, and stored along with a CRC32 checksum for integrity.
+     *
+     * @param fileName The name of the cache file.
+     * @param data The LinkedFastStrMap to be saved.
+     * @author Shotadft
+     * @since 1.1
+     */
     fun save(fileName: String, data: LinkedFastStrMap) {
         val path = getCachePath(fileName)
         path.parentFile?.mkdirs()
@@ -28,6 +41,16 @@ internal class CacheManager {
         path.writeBytes(gzip(byteData))
     }
 
+    /**
+     * Loads a cached map from a file and verifies its integrity.
+     * The file is decompressed and its CRC32 checksum is compared with the stored checksum.
+     *
+     * @param fileName The name of the cache file to load.
+     * @return The decompressed and deserialized LinkedFastStrMap.
+     * @throws IllegalStateException if the cache files are not found or if the CRC check fails.
+     * @author Shotadft
+     * @since 1.1
+     */
     fun load(fileName: String): LinkedFastStrMap {
         val path = getCachePath(fileName)
         if (!exists(fileName)) throw IllegalStateException("Cache files not found: ${path.absolutePath}")
@@ -50,9 +73,25 @@ internal class CacheManager {
     private companion object {
         val mapper by lazy { ObjectMapper().registerKotlinModule() }
 
+        /**
+         * Serializes a LinkedFastStrMap to a JSON string.
+         *
+         * @param map The map to serialize.
+         * @return A JSON string representing the map.
+         * @author Shotadft
+         * @since 1.1
+         */
         fun serializeMap(map: LinkedFastStrMap): String =
             mapper.writeValueAsString(map.mapValues { it.value.toList() })
 
+        /**
+         * Deserializes a byte array containing JSON data into a LinkedFastStrMap.
+         *
+         * @param json The byte array of JSON data.
+         * @return The deserialized LinkedFastStrMap.
+         * @author Shotadft
+         * @since 1.1
+         */
         fun deserializeMap(json: ByteArray): LinkedFastStrMap {
             return mapper.readValue(json, object : TypeReference<LinkedFastStrMap>() {
                 override fun getType() = mapper.typeFactory.constructMapType(
@@ -63,11 +102,27 @@ internal class CacheManager {
             })
         }
 
+        /**
+         * Checks if the cache files (data and CRC) for the given file name exist.
+         *
+         * @param fileName The name of the cache file.
+         * @return `true` if both the data and CRC files exist, `false` otherwise.
+         * @author Shotadft
+         * @since 1.1
+         */
         fun exists(fileName: String): Boolean {
             val path = getCachePath(fileName)
             return path.exists() && File("${path.absolutePath}.crc").exists()
         }
 
+        /**
+         * Determines the appropriate cache path based on the operating system.
+         *
+         * @param fileName The name of the file to be cached.
+         * @return The platform-specific File path.
+         * @author Shotadft
+         * @since 1.1
+         */
         fun getCachePath(fileName: String): File {
             val os = System.getProperty("os.name").lowercase()
             val userHome = System.getProperty("user.home")
@@ -76,15 +131,24 @@ internal class CacheManager {
                 os.contains("win") -> {
                     File("$userHome\\AppData\\Local\\Temp\\$fileName")
                 }
+
                 os.contains("mac") -> {
                     File("$userHome/Library/Application Support/com.shotadft.kanaconverter/$fileName")
                 }
+
                 else -> {
                     File("$userHome/.cache/com.shotadft.kanaconverter/$fileName")
                 }
             }
         }
 
+        /**
+         * Converts an Int to a ByteArray.
+         *
+         * @return The Int value as a 4-byte array.
+         * @author Shotadft
+         * @since 1.1
+         */
         fun Int.toByteArray(): ByteArray {
             return byteArrayOf(
                 (this shr 24).toByte(),
@@ -94,6 +158,13 @@ internal class CacheManager {
             )
         }
 
+        /**
+         * Converts a 4-byte ByteArray to a Long.
+         *
+         * @return The Long value represented by the byte array.
+         * @author Shotadft
+         * @since 1.1
+         */
         fun ByteArray.toLong(): Long {
             return ((this[0].toInt() and 0xFF) shl 24 or
                     (this[1].toInt() and 0xFF) shl 16 or
