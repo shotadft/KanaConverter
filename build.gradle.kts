@@ -13,16 +13,21 @@ repositories {
     mavenCentral()
 }
 
+kotlin {
+    jvmToolchain(21)
+}
+
 dependencies {
+    implementation("it.unimi.dsi:fastutil:8.5.16")
+    implementation("org.apache.commons:commons-compress:1.28.0")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.2")
+
     testImplementation(kotlin("test"))
+    testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
 }
 
 tasks.test {
     useJUnitPlatform()
-}
-
-kotlin {
-    jvmToolchain(21)
 }
 
 dokka {

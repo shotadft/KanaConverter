@@ -2,7 +2,7 @@ package com.shotadft.kanaconverter
 
 import com.shotadft.kanaconverter.api.ConvertType
 import com.shotadft.kanaconverter.api.ConvertType.*
-import kotlin.text.map
+import com.shotadft.kanaconverter.util.ConvertUtil
 
 /**
  * @author Shotadft
@@ -16,8 +16,7 @@ object KanaConverter {
     @JvmStatic
     fun String.toHiragana(type: ConvertType = ROMAJI) = when (type) {
         ROMAJI -> this
-        JAPANESE ->
-            this.map { if (it in '\u30A1'..'\u30F6') it - 0x60 else it }.joinToString("")
+        JAPANESE -> ConvertUtil.toHiragana(this)
     }
 
     /**
@@ -27,7 +26,6 @@ object KanaConverter {
     @JvmStatic
     fun String.toKatakana(type: ConvertType = ROMAJI) = when (type) {
         ROMAJI -> this
-        JAPANESE ->
-            this.map { if (it in '\u3041'..'\u3096') it + 0x60 else it }.joinToString("")
+        JAPANESE -> ConvertUtil.toKatakana(this)
     }
 }
