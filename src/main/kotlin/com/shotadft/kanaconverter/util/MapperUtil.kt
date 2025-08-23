@@ -7,8 +7,8 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.experimental.ExperimentalTypeInference
 
-typealias StrSet = ObjectOpenHashSet<String>
-typealias LinkedFastStrMap = Object2ObjectLinkedOpenHashMap<String, StrSet>
+internal typealias StrSet = ObjectOpenHashSet<String>
+internal typealias LinkedFastStrMap = Object2ObjectLinkedOpenHashMap<String, StrSet>
 
 /**
  * @author Shotadft
