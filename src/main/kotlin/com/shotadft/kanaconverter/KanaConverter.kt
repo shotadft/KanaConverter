@@ -24,6 +24,7 @@ import com.shotadft.kanaconverter.util.ConvertUtil
  * @author Shotadft
  * @since 1.1
  */
+@Suppress("Unused")
 class KanaConverter {
     companion object {
         /**

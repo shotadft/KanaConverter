@@ -15,14 +15,14 @@
  */
 package com.shotadft.kanaconverter
 
-import com.shotadft.kanaconverter.map.builder.MapBuilder
+import com.shotadft.kanaconverter.map.Mapper
 import kotlin.test.Test
 
 internal class Tester {
     @Test
     fun tested() {
-        val builder = MapBuilder()
-        val map = builder.build()
-        println(map)
+        val map = Mapper.k2rMap
+        val reverse = Mapper.r2kMap
+        println("Res -> \n$map\nRev -> \n$reverse\n")
     }
 }

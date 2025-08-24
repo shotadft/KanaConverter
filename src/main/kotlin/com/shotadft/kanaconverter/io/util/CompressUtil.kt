@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.shotadft.kanaconverter.util
+package com.shotadft.kanaconverter.io.util
 
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream
@@ -30,7 +30,7 @@ internal object CompressUtil {
      * @param data The byte array to compress.
      * @return A new byte array containing the compressed data.
      */
-    fun gzip(data: ByteArray): ByteArray {
+    internal fun gzip(data: ByteArray): ByteArray {
         ByteArrayOutputStream().use { bos ->
             GzipCompressorOutputStream(bos).use { gzip ->
                 gzip.write(data)
@@ -45,7 +45,7 @@ internal object CompressUtil {
      * @param data The Gzip-compressed byte array to decompress.
      * @return A new byte array containing the decompressed data.
      */
-    fun ungzip(data: ByteArray): ByteArray {
+    internal fun ungzip(data: ByteArray): ByteArray {
         ByteArrayInputStream(data).use { bis ->
             GzipCompressorInputStream(bis).use { gzip ->
                 return gzip.readBytes()
