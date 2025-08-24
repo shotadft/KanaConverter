@@ -44,7 +44,7 @@ dokka {
     dokkaSourceSets.main {
         sourceLink {
             localDirectory.set(file("src/main/kotlin"))
-            remoteUrl("https://github.com/shotadft/KanaConverter")
+            remoteUrl("https://github.com/shotadft/KanaConverter/tree/master/src/main/kotlin")
             remoteLineSuffix.set("#L")
         }
     }
