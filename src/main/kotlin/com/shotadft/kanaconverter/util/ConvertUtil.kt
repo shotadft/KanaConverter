@@ -28,7 +28,7 @@ internal object ConvertUtil {
      * @since 1.1
      */
     @JvmStatic
-    fun toHiragana(s: CharSequence) =
+    internal fun toHiragana(s: CharSequence) =
         s.map { if (isKatakana(it)) it - 0x60 else it }.joinToString("")
 
     /**
@@ -36,6 +36,6 @@ internal object ConvertUtil {
      * @since 1.1
      */
     @JvmStatic
-    fun toKatakana(s: CharSequence) =
+    internal fun toKatakana(s: CharSequence) =
         s.map { if (isHiragana(it)) it + 0x60 else it }.joinToString("")
 }

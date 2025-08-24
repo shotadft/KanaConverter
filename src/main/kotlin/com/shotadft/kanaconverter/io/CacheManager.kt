@@ -18,9 +18,9 @@ package com.shotadft.kanaconverter.io
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.shotadft.kanaconverter.util.CompressUtil.gzip
-import com.shotadft.kanaconverter.util.CompressUtil.ungzip
-import com.shotadft.kanaconverter.util.LinkedFastStrMap
+import com.shotadft.kanaconverter.io.util.CompressUtil.gzip
+import com.shotadft.kanaconverter.io.util.CompressUtil.ungzip
+import com.shotadft.kanaconverter.map.util.LinkedFastStrMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import java.io.File
@@ -86,7 +86,7 @@ internal class CacheManager {
     }
 
     private companion object {
-        val mapper by lazy { ObjectMapper().registerKotlinModule() }
+        private val mapper by lazy { ObjectMapper().registerKotlinModule() }
 
         /**
          * Serializes a LinkedFastStrMap to a JSON string.
@@ -96,7 +96,7 @@ internal class CacheManager {
          * @author Shotadft
          * @since 1.1
          */
-        fun serializeMap(map: LinkedFastStrMap): String =
+        private fun serializeMap(map: LinkedFastStrMap): String =
             mapper.writeValueAsString(map.mapValues { it.value.toList() })
 
         /**
@@ -107,15 +107,14 @@ internal class CacheManager {
          * @author Shotadft
          * @since 1.1
          */
-        fun deserializeMap(json: ByteArray): LinkedFastStrMap {
-            return mapper.readValue(json, object : TypeReference<LinkedFastStrMap>() {
+        private fun deserializeMap(json: ByteArray): LinkedFastStrMap =
+            mapper.readValue(json, object : TypeReference<LinkedFastStrMap>() {
                 override fun getType() = mapper.typeFactory.constructMapType(
                     Object2ObjectLinkedOpenHashMap::class.java,
                     String::class.java,
                     ObjectOpenHashSet::class.java
                 )
             })
-        }
 
         /**
          * Checks if the cache files (data and CRC) for the given file name exist.
@@ -125,7 +124,7 @@ internal class CacheManager {
          * @author Shotadft
          * @since 1.1
          */
-        fun exists(fileName: String): Boolean {
+        private fun exists(fileName: String): Boolean {
             val path = getCachePath(fileName)
             return path.exists() && File("${path.absolutePath}.crc").exists()
         }
@@ -138,7 +137,7 @@ internal class CacheManager {
          * @author Shotadft
          * @since 1.1
          */
-        fun getCachePath(fileName: String): File {
+        private fun getCachePath(fileName: String): File {
             val os = System.getProperty("os.name").lowercase()
             val userHome = System.getProperty("user.home")
 
@@ -164,14 +163,13 @@ internal class CacheManager {
          * @author Shotadft
          * @since 1.1
          */
-        fun Int.toByteArray(): ByteArray {
-            return byteArrayOf(
+        private fun Int.toByteArray(): ByteArray =
+            byteArrayOf(
                 (this shr 24).toByte(),
                 (this shr 16).toByte(),
                 (this shr 8).toByte(),
                 this.toByte()
             )
-        }
 
         /**
          * Converts a 4-byte ByteArray to a Long.
@@ -180,11 +178,10 @@ internal class CacheManager {
          * @author Shotadft
          * @since 1.1
          */
-        fun ByteArray.toLong(): Long {
-            return ((this[0].toInt() and 0xFF) shl 24 or
+        private fun ByteArray.toLong(): Long =
+            ((this[0].toInt() and 0xFF) shl 24 or
                     (this[1].toInt() and 0xFF) shl 16 or
                     (this[2].toInt() and 0xFF) shl 8 or
                     (this[3].toInt() and 0xFF)).toLong()
-        }
     }
 }

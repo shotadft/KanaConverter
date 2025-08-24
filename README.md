@@ -10,14 +10,18 @@
 This is a library that converts Roman letters to both hiragana and katakana and vice versa.<br/>
 
 ## Requirement
-- Java 21 or higher
-- fastutil 8.5.16
-- Apache Commons Compress 1.28.0
-- Jackson Module Kotlin 2.19.2
+- Java 21
+- fastutil (8.5.16)
+- Apache Commons Compress (1.28.0)
+- Jackson Module Kotlin (2.19.2)
 
 ## Development Environments
-- IntelliJ IDEA Community Edition 2025.2
-- Eclipse Temurin JDK 21.0.8+9
+- IntelliJ IDEA Community Edition (2025.2)
+- Gradle (8.9)
+  - dokka (2.0.0)
+  - spotless (7.2.1)
+- Kotlin (2.2.0)
+  - Eclipse Temurin JDK (21.0.8+9)
 
 ## Usage
 
