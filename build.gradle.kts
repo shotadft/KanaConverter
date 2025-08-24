@@ -4,6 +4,8 @@ plugins {
     // dokka
     id("org.jetbrains.dokka") version "2.0.0"
     id("org.jetbrains.dokka-javadoc") version "2.0.0"
+    // spotless
+    id("com.diffplug.spotless") version "7.2.1"
 }
 
 group = "com.shotadft"
@@ -49,5 +51,12 @@ dokka {
 
     pluginsConfiguration.html {
         footerMessage.set("(C) 2025 Shotadft")
+    }
+}
+
+spotless {
+    kotlin {
+        target("src/**/kotlin/**/*.kt")
+        licenseHeaderFile(rootProject.file("config/license-header.txt"))
     }
 }
