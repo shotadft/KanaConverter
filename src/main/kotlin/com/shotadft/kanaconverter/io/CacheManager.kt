@@ -24,6 +24,8 @@ import com.shotadft.kanaconverter.map.util.LinkedFastStrMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import java.io.File
+import java.io.FileNotFoundException
+import java.nio.ByteBuffer
 import java.util.zip.CRC32
 
 /**
@@ -47,13 +49,15 @@ internal class CacheManager {
 
         val serialized = serializeMap(data)
         val byteData = serialized.encodeToByteArray()
+        val compressedData = gzip(byteData)
 
         val crc = CRC32()
-        crc.update(byteData)
+        crc.update(compressedData)
         val checksum = crc.value
 
-        File("${path.absolutePath}.crc").writeBytes(checksum.toInt().toByteArray())
-        path.writeBytes(gzip(byteData))
+        path.writeBytes(compressedData)
+        val crcBytes = ByteBuffer.allocate(8).putLong(checksum).array()
+        File("${path.absolutePath}.crc").writeBytes(crcBytes)
     }
 
     /**
@@ -68,20 +72,20 @@ internal class CacheManager {
      */
     fun load(fileName: String): LinkedFastStrMap {
         val path = getCachePath(fileName)
-        if (!exists(fileName)) throw IllegalStateException("Cache files not found: ${path.absolutePath}")
+        if (!exists(fileName))
+            throw FileNotFoundException("Cache files not found: ${path.absolutePath}")
 
-        val decompressedData = ungzip(path.readBytes())
+        val compressedData = path.readBytes()
 
         val crc = CRC32()
-        crc.update(decompressedData)
+        crc.update(compressedData)
         val calculatedCrc = crc.value
 
-        val storedCrc = File("${path.absolutePath}.crc").readBytes().toLong()
-
-        if (calculatedCrc != storedCrc) {
+        val storedCrc = ByteBuffer.wrap(File("${path.absolutePath}.crc").readBytes()).long
+        if (calculatedCrc != storedCrc)
             throw IllegalStateException("CRC check failed! Data may be corrupted.")
-        }
 
+        val decompressedData = ungzip(compressedData)
         return deserializeMap(decompressedData)
     }
 
@@ -155,33 +159,5 @@ internal class CacheManager {
                 }
             }
         }
-
-        /**
-         * Converts an Int to a ByteArray.
-         *
-         * @return The Int value as a 4-byte array.
-         * @author Shotadft
-         * @since 1.1
-         */
-        private fun Int.toByteArray(): ByteArray =
-            byteArrayOf(
-                (this shr 24).toByte(),
-                (this shr 16).toByte(),
-                (this shr 8).toByte(),
-                this.toByte()
-            )
-
-        /**
-         * Converts a 4-byte ByteArray to a Long.
-         *
-         * @return The Long value represented by the byte array.
-         * @author Shotadft
-         * @since 1.1
-         */
-        private fun ByteArray.toLong(): Long =
-            ((this[0].toInt() and 0xFF) shl 24 or
-                    (this[1].toInt() and 0xFF) shl 16 or
-                    (this[2].toInt() and 0xFF) shl 8 or
-                    (this[3].toInt() and 0xFF)).toLong()
     }
 }
