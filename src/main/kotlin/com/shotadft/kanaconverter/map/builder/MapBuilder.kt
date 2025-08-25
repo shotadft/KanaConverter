@@ -16,12 +16,10 @@
 package com.shotadft.kanaconverter.map.builder
 
 import com.shotadft.kanaconverter.io.CacheManager
-import com.shotadft.kanaconverter.map.builder.MapBuilder.Companion.CACHE_NAME
 import com.shotadft.kanaconverter.map.builder.MapBuilder.Companion.CONSONANTS
 import com.shotadft.kanaconverter.map.builder.MapBuilder.Companion.KANA
 import com.shotadft.kanaconverter.map.builder.MapBuilder.Companion.N_CONSONANTS
 import com.shotadft.kanaconverter.map.builder.MapBuilder.Companion.VOWELS
-import com.shotadft.kanaconverter.map.builder.MapBuilder.Companion.cacheManager
 import com.shotadft.kanaconverter.map.util.LinkedFastStrMap
 import com.shotadft.kanaconverter.map.util.MapperUtil.buildLinkedFastMap
 import com.shotadft.kanaconverter.map.util.MapperUtil.objectLinkedOpenSetOf
@@ -36,13 +34,12 @@ internal class MapBuilder {
      * Constructs a [LinkedFastStrMap] with optional caching for faster subsequent retrievals.
      *
      * The build process works as follows:
-     * 1. Attempts to load a previously cached map from [CACHE_NAME] via [cacheManager].
+     * 1. Attempts to load a previously cached map.
      * 2. If loading fails or no cache exists, generates a new map using [buildBaseMap].
      * 3. The newly built map is then saved to the cache for future use.
      *
      * The resulting map associates each Japanese kana character with a set of romanized
-     * representations (consonant + vowel). Special handling includes:
-     * - The character "ん" is mapped to [N_CONSONANTS].
+     * representations (consonant + vowel).
      *
      * Usage ensures that repeated calls to [build] are optimized via caching, avoiding
      * the need to reconstruct the base map each time.
