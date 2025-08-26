@@ -24,6 +24,8 @@ import com.shotadft.kanaconverter.map.util.LinkedFastStrMap
 import com.shotadft.kanaconverter.map.util.MapperUtil.buildLinkedFastMap
 import com.shotadft.kanaconverter.map.util.MapperUtil.objectLinkedOpenSetOf
 import com.shotadft.kanaconverter.map.util.MapperUtil.objectOpenSetOf
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
+import java.io.FileNotFoundException
 
 /**
  * @author Shotadft
@@ -50,10 +52,19 @@ internal class MapBuilder {
      * @since 1.1
      */
     internal fun build(): LinkedFastStrMap = runCatching { cacheManager.load(CACHE_NAME) }
-        .onFailure { it.printStackTrace() }
+        .onFailure {
+            if (it is FileNotFoundException) System.err.println(it.message)
+            else it.printStackTrace()
+        }
         .getOrNull() ?: buildBaseMap()
         .apply {
-
+            listOf(
+                buildVCMap(),
+                buildSmallKanaMap(),
+                buildSulkyMap()
+            ).forEach { putAll(it) }
+            addHepburnMap(this)
+            putAll(buildSidetoneMap(this))
         }.also { cacheManager.save(CACHE_NAME, it) }
 
     /**
@@ -71,8 +82,56 @@ internal class MapBuilder {
      * @since 1.1
      */
     private fun buildBaseMap(): LinkedFastStrMap = buildLinkedFastMap {
-        KANA.forEachIndexed { i, row ->
-            val consonant = CONSONANTS.elementAtOrNull(i)?.toString() ?: ""
+        putAll(buildEachIMap(CONSONANTS, KANA))
+        put("ん", N_CONSONANTS)
+    }
+
+    private fun buildVCMap(): LinkedFastStrMap = buildEachIMap(VC, V_KANA)
+
+    private fun buildSulkyMap(): LinkedFastStrMap = buildLinkedFastMap {
+        SULKY_KANA.forEachIndexed { i, row ->
+            val consonant = SULKY_CONSONANTS.elementAtOrNull(i)?.toString() ?: ""
+
+            row.forEachIndexed { j, column ->
+                if (column != null) {
+                    val vowel = VOWELS.elementAtOrNull(j) ?: return@forEachIndexed
+                    if (column.contains("ゔ"))
+                        put(column, objectOpenSetOf("$consonant$vowel"))
+                    else
+                        put(column, objectOpenSetOf("${consonant}y$vowel", "${consonant}h$vowel"))
+                }
+            }
+        }
+    }
+
+    private fun buildSmallKanaMap(): LinkedFastStrMap = buildLinkedFastMap {
+        SMALL_KANA.forEach { (kana, roman) ->
+            put(kana, objectOpenSetOf(roman))
+        }
+    }
+
+    private fun buildSidetoneMap(m: LinkedFastStrMap): LinkedFastStrMap = buildLinkedFastMap {
+        val tsuSet = m["つ"] ?: return@buildLinkedFastMap
+
+        val sidetoneSet = objectOpenSetOf<String>().apply {
+            tsuSet.forEach { roman ->
+                add("x$roman")
+                add("l$roman")
+            }
+        }
+
+        put("っ", sidetoneSet)
+    }
+
+    private fun addHepburnMap(m: LinkedFastStrMap) {
+        HEPBURN_RULES.forEach { (k, v) ->
+            m[k]?.add(v)
+        }
+    }
+
+    private fun buildEachIMap(consonants: ObjectLinkedOpenHashSet<Char?>, kana: List<List<Char?>>) = buildLinkedFastMap {
+        kana.forEachIndexed { i, row ->
+            val consonant = consonants.elementAtOrNull(i)?.toString() ?: ""
 
             row.forEachIndexed { j, column ->
                 if (column != null) {
@@ -81,8 +140,6 @@ internal class MapBuilder {
                 }
             }
         }
-
-        put("ん", N_CONSONANTS)
     }
 
     private companion object {
@@ -103,6 +160,49 @@ internal class MapBuilder {
             listOf('や', null, 'ゆ', null, 'よ'),
             listOf('ら', 'り', 'る', 'れ', 'ろ'),
             listOf('わ', null, null, null, 'を')
+        )
+
+        private val VC: ObjectLinkedOpenHashSet<Char?> =
+            objectLinkedOpenSetOf('g', 'z', 'd', 'b', 'p')
+        private val V_KANA = listOf<List<Char>>(
+            listOf('が', 'ぎ', 'ぐ', 'げ', 'ご'),
+            listOf('ざ', 'じ', 'ず', 'ぜ', 'ぞ'),
+            listOf('だ', 'ぢ', 'づ', 'で', 'ど'),
+            listOf('ば', 'び', 'ぶ', 'べ', 'ぼ'),
+            listOf('ぱ', 'ぴ', 'ぷ', 'ぺ', 'ぽ')
+        )
+
+        private val SULKY_CONSONANTS = objectLinkedOpenSetOf('k', 's', 't', 'n', 'h', 'm', 'r', 'w', 'v')
+        private val SULKY_KANA = listOf<List<String?>>(
+            listOf("きゃ", null, "きゅ", "きぇ", "きょ"),
+            listOf("しゃ", null, "しゅ", "しぇ", "しょ"),
+            listOf("ちゃ", null, "ちゅ", "ちぇ", "ちょ"),
+            listOf("にゃ", null, "にゅ", "にぇ", "にょ"),
+            listOf("ひゃ", null, "ひゅ", "ひぇ", "ひょ"),
+            listOf("みゃ", null, "みゅ", "みぇ", "みょ"),
+            listOf("りゃ", null, "りゅ", "りぇ", "りょ"),
+            listOf(null, "うぃ", null, "うぇ", null),
+            listOf("ゔぁ", "ゔぃ", "ゔ", "ゔぇ", "ゔぉ")
+        )
+
+        private val SMALL_KANA = listOf(
+            "ぁ" to "a",
+            "ぃ" to "i",
+            "ぅ" to "u",
+            "ぇ" to "e",
+            "ぉ" to "o",
+            "ゃ" to "ya",
+            "ゅ" to "yu",
+            "ょ" to "yo"
+        )
+
+        private val HEPBURN_RULES = mapOf(
+            "し" to "shi",
+            "ち" to "chi",
+            "つ" to "tsu",
+            "じ" to "ji",
+            "ぢ" to "ji",
+            "ふ" to "fu",
         )
     }
 }

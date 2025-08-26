@@ -18,7 +18,6 @@ package com.shotadft.kanaconverter.map
 import com.shotadft.kanaconverter.map.builder.MapBuilder
 import com.shotadft.kanaconverter.map.util.LinkedFastStrMap
 import com.shotadft.kanaconverter.map.util.MapperUtil.linkedFastMapOf
-import com.shotadft.kanaconverter.map.util.StrSet
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 
 /**
@@ -32,12 +31,13 @@ object Mapper {
     internal val k2rMap: LinkedFastStrMap by lazy { builder.build() }
 
     @JvmStatic
-    internal val r2kMap: Object2ObjectLinkedOpenHashMap<StrSet, String> by lazy { k2rMap.invert() }
+    internal val r2kMap: Object2ObjectLinkedOpenHashMap<String, String> by lazy { k2rMap.invert() }
 
     @JvmStatic
-    internal fun LinkedFastStrMap.invert(): Object2ObjectLinkedOpenHashMap<StrSet, String> =
-        linkedFastMapOf<StrSet, String>()
-            .also {
-                forEach { (k, v) -> it[v] = k }
+    internal fun LinkedFastStrMap.invert(): Object2ObjectLinkedOpenHashMap<String, String> =
+        linkedFastMapOf<String, String>().also { rev ->
+            this.forEach { (k, v) ->
+                v.forEach { if (!rev.containsKey(it)) rev[it] = k }
             }
+        }
 }
