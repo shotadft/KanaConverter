@@ -28,10 +28,10 @@ object Mapper {
     private val builder = MapBuilder()
 
     @JvmStatic
-    internal val k2rMap: LinkedFastStrMap by lazy { builder.build() }
+    internal val h2rMap: LinkedFastStrMap by lazy { builder.build() }
 
     @JvmStatic
-    internal val r2kMap: Object2ObjectLinkedOpenHashMap<String, String> by lazy { k2rMap.invert() }
+    internal val r2hMap: Object2ObjectLinkedOpenHashMap<String, String> by lazy { h2rMap.invert() }
 
     @JvmStatic
     internal fun LinkedFastStrMap.invert(): Object2ObjectLinkedOpenHashMap<String, String> =

@@ -30,7 +30,7 @@ internal object CompressUtil {
      * @param data The byte array to compress.
      * @return A new byte array containing the compressed data.
      */
-    internal fun gzip(data: ByteArray): ByteArray {
+    fun gzip(data: ByteArray): ByteArray {
         ByteArrayOutputStream().use { bos ->
             GzipCompressorOutputStream(bos).use { gzip ->
                 gzip.write(data)
@@ -45,7 +45,7 @@ internal object CompressUtil {
      * @param data The Gzip-compressed byte array to decompress.
      * @return A new byte array containing the decompressed data.
      */
-    internal fun ungzip(data: ByteArray): ByteArray {
+    fun ungzip(data: ByteArray): ByteArray {
         ByteArrayInputStream(data).use { bis ->
             GzipCompressorInputStream(bis).use { gzip ->
                 return gzip.readBytes()

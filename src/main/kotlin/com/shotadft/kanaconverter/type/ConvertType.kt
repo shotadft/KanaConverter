@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.shotadft.kanaconverter.api
+package com.shotadft.kanaconverter.type
 
 /**
  * Defines the types of conversion available.

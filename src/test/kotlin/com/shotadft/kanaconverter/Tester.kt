@@ -15,14 +15,24 @@
  */
 package com.shotadft.kanaconverter
 
+import com.shotadft.kanaconverter.KanaConverter.Companion.toHiragana
 import com.shotadft.kanaconverter.map.Mapper
 import kotlin.test.Test
 
 internal class Tester {
     @Test
-    fun tested() {
-        val map = Mapper.k2rMap
-        val reverse = Mapper.r2kMap
-        println("Res -> \n$map\nRev -> \n$reverse\n")
+    fun `Convert Test`() {
+        val str = "aiueo ka kiku ke koo hattya! aidobe-! nihahaha! uiaeo syasharideru amuro rei kunnnn nnunn"
+        println("Original -> \"$str\"")
+        val res1 = str.toHiragana()
+        println("toHiragana -> \"$res1\"")
+        println("想定 -> \"あいうえお か きく け こお はっちゃ! あいどべ-! にははは! ういあえお しゃしゃりでる あむろ れい くんん んうん\"")
+    }
+
+    @Test
+    fun `Check Map`() {
+        val map = Mapper.h2rMap
+        val rev = Mapper.r2hMap
+        println("Res -> \n$map\nRev -> \n$rev\n")
     }
 }

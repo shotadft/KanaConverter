@@ -133,18 +133,19 @@ internal class MapBuilder {
         }
     }
 
-    private fun buildEachIMap(consonants: ObjectLinkedOpenHashSet<Char?>, kana: List<List<Char?>>) = buildLinkedFastMap {
-        kana.forEachIndexed { i, row ->
-            val consonant = consonants.elementAtOrNull(i)?.toString() ?: ""
+    private fun buildEachIMap(consonants: ObjectLinkedOpenHashSet<Char?>, kana: List<List<Char?>>) =
+        buildLinkedFastMap {
+            kana.forEachIndexed { i, row ->
+                val consonant = consonants.elementAtOrNull(i)?.toString() ?: ""
 
-            row.forEachIndexed { j, column ->
-                if (column != null) {
-                    val vowel = VOWELS.elementAtOrNull(j) ?: return@forEachIndexed
-                    put(column.toString(), objectOpenSetOf("$consonant$vowel"))
+                row.forEachIndexed { j, column ->
+                    if (column != null) {
+                        val vowel = VOWELS.elementAtOrNull(j) ?: return@forEachIndexed
+                        put(column.toString(), objectOpenSetOf("$consonant$vowel"))
+                    }
                 }
             }
         }
-    }
 
     private companion object {
         private const val CACHE_NAME = "MAPCACHE.bin"

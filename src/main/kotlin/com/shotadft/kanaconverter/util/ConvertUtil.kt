@@ -28,14 +28,14 @@ internal object ConvertUtil {
      * @since 1.1
      */
     @JvmStatic
-    internal fun toHiragana(s: CharSequence) =
-        s.map { if (isKatakana(it)) it - 0x60 else it }.joinToString("")
+    internal fun toHiragana(c: CharSequence) =
+        c.map { if (isKatakana(it)) it - 0x60 else it }.joinToString("")
 
     /**
      * @author Shotadft
      * @since 1.1
      */
     @JvmStatic
-    internal fun toKatakana(s: CharSequence) =
-        s.map { if (isHiragana(it)) it + 0x60 else it }.joinToString("")
+    internal fun toKatakana(c: CharSequence) =
+        c.map { if (isHiragana(it)) it + 0x60 else it }.joinToString("")
 }
