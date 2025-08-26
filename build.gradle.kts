@@ -1,5 +1,6 @@
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinJvm
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
-import org.jetbrains.dokka.gradle.tasks.DokkaGeneratePublicationTask
 
 plugins {
     kotlin("jvm") version "2.2.0"
@@ -14,7 +15,7 @@ plugins {
 }
 
 group = "com.shotadft"
-version = "1.1-SNAPSHOT"
+version = "1.1"
 
 repositories {
     mavenCentral()
@@ -77,28 +78,24 @@ spotless {
     }
 }
 
-val dokkaJavadoc = tasks.named<DokkaGeneratePublicationTask>("dokkaGeneratePublicationJavadoc")
-
-tasks.register<Jar>("javadocJar") {
-    dependsOn(dokkaJavadoc)
-    archiveClassifier.set("javadoc")
-    from(dokkaJavadoc.flatMap { it.outputDirectory })
-}
-
-tasks.assemble {
-    dependsOn(tasks.named<Jar>("javadocJar"))
-}
-
 val gitHubUserName = "shotadft"
 val gitHubRepoName = "KanaConverter"
 
 mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
+
     coordinates(
-        group.toString(),
-        project.rootProject.name,
-        version.toString()
+        groupId = group.toString(),
+        artifactId = project.rootProject.name,
+        version = version.toString()
+    )
+
+    configure(
+        KotlinJvm(
+            javadocJar = JavadocJar.Dokka("dokkaGeneratePublicationJavadoc"),
+            sourcesJar = true
+        )
     )
 
     pom {
@@ -109,9 +106,8 @@ mavenPublishing {
 
         licenses {
             license {
-                name.set("The Apache License, Version 2.0")
+                name.set("Apache-2.0")
                 url.set("https://www.apache.org.licenses/LICENSE-2.0.txt")
-                distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
             }
         }
 
@@ -119,6 +115,7 @@ mavenPublishing {
             developer {
                 id.set(gitHubUserName)
                 name.set("Shouta Fukaya")
+                email.set("98450322+shotadft@users.noreply.github.com")
                 url.set("https://github.com/${gitHubUserName}/")
             }
         }

@@ -43,3 +43,11 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+_MACOSX/
+Thumbs.db
+ehthumbs.db
+[Dd]esktop.ini
+
+### ENV files ###
+.env
+env/
