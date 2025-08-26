@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.shotadft.kanaconverter
+package com.shotadft.kanaconverter.test
 
-import com.shotadft.kanaconverter.map.Mapper
-import kotlin.test.Test
+import com.shotadft.kanaconverter.KanaConverter.Companion.toHiragana
+import com.shotadft.kanaconverter.KanaConverter.Companion.toKatakana
 
-internal class Tester {
-    @Test
-    fun tested() {
-        val map = Mapper.k2rMap
-        val reverse = Mapper.r2kMap
-        println("Res -> \n$map\nRev -> \n$reverse\n")
+fun main() {
+    val str = readlnOrNull()
+    if (str != null) {
+        val res1 = str.toHiragana()
+        val res2 = str.toKatakana()
+        println("toHiragana -> \"$res1\"")
+        println("toKatakana -> \"$res2\"")
     }
 }

@@ -24,6 +24,10 @@ import com.shotadft.kanaconverter.map.util.LinkedFastStrMap
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import java.io.File
+import java.io.FileNotFoundException
+import java.nio.ByteBuffer
+import java.time.Duration
+import java.time.Instant
 import java.util.zip.CRC32
 
 /**
@@ -41,19 +45,29 @@ internal class CacheManager {
      * @author Shotadft
      * @since 1.1
      */
-    fun save(fileName: String, data: LinkedFastStrMap) {
+    fun save(fileName: String, data: LinkedFastStrMap, ttlSeconds: Long = Duration.ofDays(1).seconds) {
         val path = getCachePath(fileName)
         path.parentFile?.mkdirs()
 
-        val serialized = serializeMap(data)
-        val byteData = serialized.encodeToByteArray()
+        val serialized = serializeMap(data).encodeToByteArray()
+        val compressedData = gzip(serialized)
+
+        val expireAt = Instant.now().epochSecond + ttlSeconds
+        val headerBuffer = ByteBuffer.allocate(4 + 4 + 8)
+        headerBuffer.putInt(16)
+        headerBuffer.putInt(CACHE_VERSION)
+        headerBuffer.putLong(expireAt)
+        val headerBytes = headerBuffer.array()
+
+        val finalBytes = headerBytes + compressedData
+
+        path.writeBytes(finalBytes)
 
         val crc = CRC32()
-        crc.update(byteData)
+        crc.update(finalBytes)
         val checksum = crc.value
-
-        File("${path.absolutePath}.crc").writeBytes(checksum.toInt().toByteArray())
-        path.writeBytes(gzip(byteData))
+        val crcBytes = ByteBuffer.allocate(8).putLong(checksum).array()
+        File("${path.absolutePath}.crc").writeBytes(crcBytes)
     }
 
     /**
@@ -68,25 +82,39 @@ internal class CacheManager {
      */
     fun load(fileName: String): LinkedFastStrMap {
         val path = getCachePath(fileName)
-        if (!exists(fileName)) throw IllegalStateException("Cache files not found: ${path.absolutePath}")
+        if (!exists(fileName))
+            throw FileNotFoundException("Cache files not found: ${path.absolutePath}")
 
-        val decompressedData = ungzip(path.readBytes())
+        val allBytes = path.readBytes()
 
         val crc = CRC32()
-        crc.update(decompressedData)
+        crc.update(allBytes)
         val calculatedCrc = crc.value
-
-        val storedCrc = File("${path.absolutePath}.crc").readBytes().toLong()
-
-        if (calculatedCrc != storedCrc) {
+        val storedCrc = ByteBuffer.wrap(File("${path.absolutePath}.crc").readBytes()).long
+        if (calculatedCrc != storedCrc)
             throw IllegalStateException("CRC check failed! Data may be corrupted.")
-        }
 
+        val headerLength = ByteBuffer.wrap(allBytes.sliceArray(0..3)).int
+        if (headerLength != 16)
+            throw IllegalStateException("Invalid header length")
+
+        val headerBuffer = ByteBuffer.wrap(allBytes.sliceArray(0 until 16))
+        headerBuffer.position(4)
+        val version = headerBuffer.int
+        val expireAt = headerBuffer.long
+
+        if (Instant.now().epochSecond > expireAt)
+            throw IllegalStateException("Cache expired! Version: $version")
+
+        val compressedData = allBytes.sliceArray(16 until allBytes.size)
+        val decompressedData = ungzip(compressedData)
         return deserializeMap(decompressedData)
     }
 
     private companion object {
         private val mapper by lazy { ObjectMapper().registerKotlinModule() }
+
+        private const val CACHE_VERSION = 11_08923812
 
         /**
          * Serializes a LinkedFastStrMap to a JSON string.
@@ -155,33 +183,5 @@ internal class CacheManager {
                 }
             }
         }
-
-        /**
-         * Converts an Int to a ByteArray.
-         *
-         * @return The Int value as a 4-byte array.
-         * @author Shotadft
-         * @since 1.1
-         */
-        private fun Int.toByteArray(): ByteArray =
-            byteArrayOf(
-                (this shr 24).toByte(),
-                (this shr 16).toByte(),
-                (this shr 8).toByte(),
-                this.toByte()
-            )
-
-        /**
-         * Converts a 4-byte ByteArray to a Long.
-         *
-         * @return The Long value represented by the byte array.
-         * @author Shotadft
-         * @since 1.1
-         */
-        private fun ByteArray.toLong(): Long =
-            ((this[0].toInt() and 0xFF) shl 24 or
-                    (this[1].toInt() and 0xFF) shl 16 or
-                    (this[2].toInt() and 0xFF) shl 8 or
-                    (this[3].toInt() and 0xFF)).toLong()
     }
 }

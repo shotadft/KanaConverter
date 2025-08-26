@@ -15,9 +15,10 @@
  */
 package com.shotadft.kanaconverter
 
-import com.shotadft.kanaconverter.api.ConvertType
-import com.shotadft.kanaconverter.api.ConvertType.JAPANESE
-import com.shotadft.kanaconverter.api.ConvertType.ROMAJI
+import com.shotadft.kanaconverter.converter.RomajiConverter
+import com.shotadft.kanaconverter.type.ConvertType
+import com.shotadft.kanaconverter.type.ConvertType.JAPANESE
+import com.shotadft.kanaconverter.type.ConvertType.ROMAJI
 import com.shotadft.kanaconverter.util.ConvertUtil
 
 /**
@@ -32,8 +33,8 @@ class KanaConverter {
          * @since 1.0
          */
         @JvmStatic
-        fun String.toHiragana(type: ConvertType = ROMAJI) = when (type) {
-            ROMAJI -> this // TODO: ローマ字からの変換処理
+        fun CharSequence.toHiragana(type: ConvertType = ROMAJI): String = when (type) {
+            ROMAJI -> RomajiConverter().convert(this)
             JAPANESE -> ConvertUtil.toHiragana(this)
         }
 
@@ -42,8 +43,8 @@ class KanaConverter {
          * @since 1.0
          */
         @JvmStatic
-        fun String.toKatakana(type: ConvertType = ROMAJI) = when (type) {
-            ROMAJI -> this // TODO: ローマ字からの変換処理
+        fun CharSequence.toKatakana(type: ConvertType = ROMAJI): String = when (type) {
+            ROMAJI -> ConvertUtil.toKatakana(this.toHiragana(type = ROMAJI))
             JAPANESE -> ConvertUtil.toKatakana(this)
         }
 
@@ -52,6 +53,6 @@ class KanaConverter {
          * @since 1.1
          */
         @JvmStatic
-        fun String.toRomaji() = this // TODO: ひらがな/カタカナからローマ字へ変換
+        fun CharSequence.toRomaji(): String = this.toString() // TODO: ひらがな/カタカナからローマ字へ変換
     }
 }

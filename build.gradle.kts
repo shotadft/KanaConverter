@@ -1,3 +1,7 @@
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinJvm
+import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
+
 plugins {
     kotlin("jvm") version "2.2.0"
     `java-library`
@@ -6,10 +10,12 @@ plugins {
     id("org.jetbrains.dokka-javadoc") version "2.0.0"
     // spotless
     id("com.diffplug.spotless") version "7.2.1"
+    // Maven Central
+    id("com.vanniktech.maven.publish") version "0.34.0"
 }
 
 group = "com.shotadft"
-version = "1.0-SNAPSHOT"
+version = "1.1"
 
 repositories {
     mavenCentral()
@@ -41,12 +47,23 @@ dokka {
         failOnWarning.set(true)
     }
 
+    dokkaPublications.javadoc {
+        outputDirectory.set(layout.buildDirectory.dir("javadoc"))
+        suppressInheritedMembers.set(true)
+        failOnWarning.set(true)
+    }
+
     dokkaSourceSets.main {
         sourceLink {
             localDirectory.set(file("src/main/kotlin"))
             remoteUrl("https://github.com/shotadft/KanaConverter/tree/master/src/main/kotlin")
             remoteLineSuffix.set("#L")
         }
+
+        documentedVisibilities.set(setOf(
+            VisibilityModifier.Public,
+            VisibilityModifier.Internal
+        ))
     }
 
     pluginsConfiguration.html {
@@ -58,5 +75,55 @@ spotless {
     kotlin {
         target("src/**/kotlin/**/*.kt")
         licenseHeaderFile(rootProject.file("config/license-header.txt"))
+    }
+}
+
+val gitHubUserName = "shotadft"
+val gitHubRepoName = "KanaConverter"
+
+mavenPublishing {
+    publishToMavenCentral()
+    signAllPublications()
+
+    coordinates(
+        groupId = group.toString(),
+        artifactId = project.rootProject.name,
+        version = version.toString()
+    )
+
+    configure(
+        KotlinJvm(
+            javadocJar = JavadocJar.Dokka("dokkaGeneratePublicationJavadoc"),
+            sourcesJar = true
+        )
+    )
+
+    pom {
+        name.set(project.rootProject.name)
+        description.set("This is a library that converts Roman letters to both hiragana and katakana and vice versa.")
+        inceptionYear.set("2025")
+        url.set("https://github.com/${gitHubUserName}/KanaConverter")
+
+        licenses {
+            license {
+                name.set("Apache-2.0")
+                url.set("https://www.apache.org.licenses/LICENSE-2.0.txt")
+            }
+        }
+
+        developers {
+            developer {
+                id.set(gitHubUserName)
+                name.set("Shouta Fukaya")
+                email.set("98450322+shotadft@users.noreply.github.com")
+                url.set("https://github.com/${gitHubUserName}/")
+            }
+        }
+
+        scm {
+            connection = "scm:git:https://github.com/${gitHubUserName}/${gitHubRepoName}.git"
+            developerConnection = "scm:git:git@github.com:${gitHubUserName}/${gitHubRepoName}.git"
+            url = "https://github.com/${gitHubUserName}/$gitHubRepoName"
+        }
     }
 }
