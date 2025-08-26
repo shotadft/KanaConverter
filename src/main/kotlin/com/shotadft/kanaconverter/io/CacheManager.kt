@@ -26,6 +26,8 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.ByteBuffer
+import java.time.Duration
+import java.time.Instant
 import java.util.zip.CRC32
 
 /**
@@ -43,19 +45,27 @@ internal class CacheManager {
      * @author Shotadft
      * @since 1.1
      */
-    fun save(fileName: String, data: LinkedFastStrMap) {
+    fun save(fileName: String, data: LinkedFastStrMap, ttlSeconds: Long = Duration.ofDays(1).seconds) {
         val path = getCachePath(fileName)
         path.parentFile?.mkdirs()
 
-        val serialized = serializeMap(data)
-        val byteData = serialized.encodeToByteArray()
-        val compressedData = gzip(byteData)
+        val serialized = serializeMap(data).encodeToByteArray()
+        val compressedData = gzip(serialized)
+
+        val expireAt = Instant.now().epochSecond + ttlSeconds
+        val headerBuffer = ByteBuffer.allocate(4 + 4 + 8)
+        headerBuffer.putInt(16)
+        headerBuffer.putInt(CACHE_VERSION)
+        headerBuffer.putLong(expireAt)
+        val headerBytes = headerBuffer.array()
+
+        val finalBytes = headerBytes + compressedData
+
+        path.writeBytes(finalBytes)
 
         val crc = CRC32()
-        crc.update(compressedData)
+        crc.update(finalBytes)
         val checksum = crc.value
-
-        path.writeBytes(compressedData)
         val crcBytes = ByteBuffer.allocate(8).putLong(checksum).array()
         File("${path.absolutePath}.crc").writeBytes(crcBytes)
     }
@@ -75,22 +85,36 @@ internal class CacheManager {
         if (!exists(fileName))
             throw FileNotFoundException("Cache files not found: ${path.absolutePath}")
 
-        val compressedData = path.readBytes()
+        val allBytes = path.readBytes()
 
         val crc = CRC32()
-        crc.update(compressedData)
+        crc.update(allBytes)
         val calculatedCrc = crc.value
-
         val storedCrc = ByteBuffer.wrap(File("${path.absolutePath}.crc").readBytes()).long
         if (calculatedCrc != storedCrc)
             throw IllegalStateException("CRC check failed! Data may be corrupted.")
 
+        val headerLength = ByteBuffer.wrap(allBytes.sliceArray(0..3)).int
+        if (headerLength != 16)
+            throw IllegalStateException("Invalid header length")
+
+        val headerBuffer = ByteBuffer.wrap(allBytes.sliceArray(0 until 16))
+        headerBuffer.position(4)
+        val version = headerBuffer.int
+        val expireAt = headerBuffer.long
+
+        if (Instant.now().epochSecond > expireAt)
+            throw IllegalStateException("Cache expired! Version: $version")
+
+        val compressedData = allBytes.sliceArray(16 until allBytes.size)
         val decompressedData = ungzip(compressedData)
         return deserializeMap(decompressedData)
     }
 
     private companion object {
         private val mapper by lazy { ObjectMapper().registerKotlinModule() }
+
+        private const val CACHE_VERSION = 11_08923812
 
         /**
          * Serializes a LinkedFastStrMap to a JSON string.

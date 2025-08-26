@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.shotadft.kanaconverter
+package com.shotadft.kanaconverter.test
 
 import com.shotadft.kanaconverter.KanaConverter.Companion.toHiragana
 import com.shotadft.kanaconverter.KanaConverter.Companion.toKatakana
@@ -21,6 +21,21 @@ import com.shotadft.kanaconverter.map.Mapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/**
+ * Copyright 2025 Shotadft
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 internal class Tester {
     @Test
     fun `Convert Hiragana Test`() {
@@ -39,7 +54,7 @@ internal class Tester {
         val str = "aiueo ka kiku ke koo hattya! aidobe-! nihahaha! uiaeo syasharideru amuro rei kunnnn nnunn"
         println("Original -> \"$str\"")
         val res = str.toKatakana()
-        println("toHiragana -> \"$res\"")
+        println("toKatakana -> \"$res\"")
         val expected = "アイウエオ カ キク ケ コオ ハッチャ! アイドベ-! ニハハハ! ウイアエオ シャシャリデル アムロ レイ クンン ンウン"
         println("想定     　 -> \"$expected\"")
         assertEquals(expected, res)

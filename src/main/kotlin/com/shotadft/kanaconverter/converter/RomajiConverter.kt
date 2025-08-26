@@ -34,7 +34,8 @@ class RomajiConverter {
             var matched = false
 
             when {
-                i + 1 < input.length && c !in listOf('a', 'i', 'u', 'e', 'o', 'n') &&
+                i + 1 < input.length &&
+                        c in 'a'..'z' && c !in listOf('a','i','u','e','o','n') &&
                         input[i + 1].lowercaseChar() == c -> {
                     var count = 0
                     while (i + count < input.length &&

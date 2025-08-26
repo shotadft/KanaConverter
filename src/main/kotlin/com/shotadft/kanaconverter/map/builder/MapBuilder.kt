@@ -22,6 +22,7 @@ import com.shotadft.kanaconverter.map.builder.MapBuilder.Companion.N_CONSONANTS
 import com.shotadft.kanaconverter.map.builder.MapBuilder.Companion.VOWELS
 import com.shotadft.kanaconverter.map.util.LinkedFastStrMap
 import com.shotadft.kanaconverter.map.util.MapperUtil.buildLinkedFastMap
+import com.shotadft.kanaconverter.map.util.MapperUtil.linkedFastMapOf
 import com.shotadft.kanaconverter.map.util.MapperUtil.objectLinkedOpenSetOf
 import com.shotadft.kanaconverter.map.util.MapperUtil.objectOpenSetOf
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
@@ -51,7 +52,8 @@ internal class MapBuilder {
      * @author Shotadft
      * @since 1.1
      */
-    internal fun build(): LinkedFastStrMap = runCatching { cacheManager.load(CACHE_NAME) }
+    internal fun build(): LinkedFastStrMap =
+        runCatching { cacheManager.load(CACHE_NAME) }
         .onFailure {
             if (it is FileNotFoundException) System.err.println(it.message)
             else it.printStackTrace()
@@ -95,10 +97,15 @@ internal class MapBuilder {
             row.forEachIndexed { j, column ->
                 if (column != null) {
                     val vowel = VOWELS.elementAtOrNull(j) ?: return@forEachIndexed
+                    val set = get(column) ?: objectOpenSetOf()
                     if (column.contains("ゔ"))
-                        put(column, objectOpenSetOf("$consonant$vowel"))
-                    else
-                        put(column, objectOpenSetOf("${consonant}y$vowel", "${consonant}h$vowel"))
+                        set.add("$consonant$vowel")
+                    else {
+                        set.add("${consonant}y$vowel")
+                        set.add("${consonant}h$vowel")
+                    }
+
+                    put(column, set)
                 }
             }
         }
@@ -129,7 +136,7 @@ internal class MapBuilder {
 
     private fun addHepburnMap(m: LinkedFastStrMap) {
         HEPBURN_RULES.forEach { (k, v) ->
-            m[k]?.add(v)
+            m.computeIfAbsent(k) { objectOpenSetOf() }.addAll(v)
         }
     }
 
@@ -201,13 +208,20 @@ internal class MapBuilder {
             "ょ" to "yo"
         )
 
-        private val HEPBURN_RULES = mapOf(
-            "し" to "shi",
-            "ち" to "chi",
-            "つ" to "tsu",
-            "じ" to "ji",
-            "ぢ" to "ji",
-            "ふ" to "fu",
+        private val HEPBURN_RULES = linkedFastMapOf(
+            "し" to objectOpenSetOf("shi"),
+            "ち" to objectOpenSetOf("chi"),
+            "つ" to objectOpenSetOf("tsu"),
+            "じ" to objectOpenSetOf("ji"),
+            "ふぁ" to objectOpenSetOf("fa"),
+            "ふぃ" to objectOpenSetOf("fi"),
+            "ふ" to objectOpenSetOf("fu"),
+            "ふぇ" to objectOpenSetOf("fe"),
+            "ふぉ" to objectOpenSetOf("fo"),
+            "ちゃ" to objectOpenSetOf("cya", "cha"),
+            "ちゅ" to objectOpenSetOf("cyu", "chu"),
+            "ちぇ" to objectOpenSetOf("cye", "che"),
+            "ちょ" to objectOpenSetOf("cyo", "cho")
         )
     }
 }
