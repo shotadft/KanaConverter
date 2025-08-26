@@ -106,7 +106,11 @@ internal class MapBuilder {
 
     private fun buildSmallKanaMap(): LinkedFastStrMap = buildLinkedFastMap {
         SMALL_KANA.forEach { (kana, roman) ->
-            put(kana, objectOpenSetOf(roman))
+            val processedSet = objectOpenSetOf<String>().apply {
+                add("x$roman")
+                add("l$roman")
+            }
+            put(kana, processedSet)
         }
     }
 
