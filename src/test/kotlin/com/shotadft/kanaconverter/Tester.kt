@@ -16,17 +16,34 @@
 package com.shotadft.kanaconverter
 
 import com.shotadft.kanaconverter.KanaConverter.Companion.toHiragana
+import com.shotadft.kanaconverter.KanaConverter.Companion.toKatakana
 import com.shotadft.kanaconverter.map.Mapper
 import kotlin.test.Test
+import kotlin.test.assertEquals
 
 internal class Tester {
     @Test
-    fun `Convert Test`() {
+    fun `Convert Hiragana Test`() {
         val str = "aiueo ka kiku ke koo hattya! aidobe-! nihahaha! uiaeo syasharideru amuro rei kunnnn nnunn"
         println("Original -> \"$str\"")
-        val res1 = str.toHiragana()
-        println("toHiragana -> \"$res1\"")
-        println("想定 -> \"あいうえお か きく け こお はっちゃ! あいどべ-! にははは! ういあえお しゃしゃりでる あむろ れい くんん んうん\"")
+        val res = str.toHiragana()
+        println("toHiragana -> \"$res\"")
+        val expected = "あいうえお か きく け こお はっちゃ! あいどべ-! にははは! ういあえお しゃしゃりでる あむろ れい くんん んうん"
+        println("想定     　 -> \"$expected\"")
+        assertEquals(expected, res)
+        println()
+    }
+
+    @Test
+    fun `Convert Katakana Test`() {
+        val str = "aiueo ka kiku ke koo hattya! aidobe-! nihahaha! uiaeo syasharideru amuro rei kunnnn nnunn"
+        println("Original -> \"$str\"")
+        val res = str.toKatakana()
+        println("toHiragana -> \"$res\"")
+        val expected = "アイウエオ カ キク ケ コオ ハッチャ! アイドベ-! ニハハハ! ウイアエオ シャシャリデル アムロ レイ クンン ンウン"
+        println("想定     　 -> \"$expected\"")
+        assertEquals(expected, res)
+        println()
     }
 
     @Test
