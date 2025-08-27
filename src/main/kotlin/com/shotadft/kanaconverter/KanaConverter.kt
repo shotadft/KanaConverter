@@ -33,6 +33,14 @@ object KanaConverter {
     internal const val VERSION = 1_1_1
 
     /**
+     * Converts this [CharSequence] to Hiragana.
+     *
+     * The conversion method depends on [type]:
+     * - [ROMAJI]: Converts from Romaji to Hiragana.
+     * - [JAPANESE]: Converts from Japanese text to Hiragana.
+     *
+     * @param type The conversion type (default is [ROMAJI]).
+     * @return A string containing the converted Hiragana text.
      * @author Shotadft
      * @since 1.0
      */
@@ -43,6 +51,14 @@ object KanaConverter {
     }
 
     /**
+     * Converts this [CharSequence] to Katakana.
+     *
+     * The conversion method depends on [type]:
+     * - [ROMAJI]: Converts from Romaji to Hiragana first, then to Katakana.
+     * - [JAPANESE]: Converts from Japanese text directly to Katakana.
+     *
+     * @param type The conversion type (default is [ROMAJI]).
+     * @return A string containing the converted Katakana text.
      * @author Shotadft
      * @since 1.0
      */
@@ -53,6 +69,11 @@ object KanaConverter {
     }
 
     /**
+     * Converts this [CharSequence] from Japanese text to Romaji.
+     *
+     * First converts the text to Hiragana, then converts the Hiragana to Romaji.
+     *
+     * @return A string containing the converted Romaji text.
      * @author Shotadft
      * @since 1.1
      */

@@ -37,7 +37,6 @@ import java.util.zip.CRC32
  * @since 1.1
  */
 internal class CacheManager {
-
     /**
      * Saves the given map to a cache file. The data is serialized to JSON,
      * compressed with Gzip, and stored along with a CRC32 checksum for integrity.
