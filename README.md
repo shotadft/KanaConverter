@@ -9,6 +9,28 @@
 ## Overview
 This is a library that converts Roman letters to both hiragana and katakana and vice versa.<br/>
 
+## Installation
+### Maven
+```xml
+<dependency>
+    <groupId>com.shotadft</groupId>
+    <artifactId>kana-converter</artifactId>
+    <version>1.1.1</version>
+</dependency>
+```
+### Gradle(Groovy DSL)
+```groovy
+dependencies {
+    implementation 'com.shotadft:kana-converter:1.1.1'
+}
+```
+### Gradle(Kotlin DSL)
+```kts
+dependencies {
+    implementation("com.shotadft:kana-converter:1.1.1")
+}
+```
+
 ## Requirement
 - Java 21
 - fastutil (8.5.16)
@@ -24,8 +46,30 @@ This is a library that converts Roman letters to both hiragana and katakana and 
   - Eclipse Temurin JDK (21.0.8+9)
 
 ## Usage
+```kotlin
+import com.shotadft.kanaconverter.KanaConverter.toHiragana
+import com.shotadft.kanaconverter.KanaConverter.toKatakana
+import com.shotadft.kanaconverter.KanaConverter.toRomaji
+
+fun main() {
+    val hiragana = "こんにちは"
+    val katakana = "コンニチハ"
+    val romaji = "konnichiwa"
+
+    println(hiragana.toKatakana()) // コンニチハ
+    println(katakana.toHiragana()) // こんにちは
+    println(hiragana.toRomaji())   // konnichiwa
+    println(katakana.toRomaji())   // konnichiwa
+    println(romaji.toHiragana())   // こんにちは
+    println(romaji.toKatakana())   // コンニチハ
+}
+```
 
 ## Features
+- 高速、そしてまあまあ高い精度で変換できます。<br>対応してないものがあるかもしれないけどその場合はIssueを立ててね<br>
+(ヘボンと訓令を両対応させる都合でtoRomajiの精度が酷いことになってるけどね...)
+- fastutilのマップを簡単に構築できるツールを使用してメモリ消費量を抑えています。<br>また、キャッシュによって変換速度を向上させています。
+- IssueやPull Requestは大歓迎です。<br>バグ報告、機能追加、コード改善など何でもどうぞ。
 
 ## Author Links
 - [Twitter](https://x.com/shotadft)
@@ -43,5 +87,5 @@ This is a library that converts Roman letters to both hiragana and katakana and 
 [license-url]: https://github.com/shotadft/KanaConverter/blob/master/LICENSE.md
 [central-shield]: https://img.shields.io/maven-central/v/com.shotadft/kana-converter?style=for-the-badge
 [central-url]: https://central.sonatype.com/artifact/com.shotadft/kana-converter
-[version-shield]: https://img.shields.io/badge/1.1.0%CE%B1-00c81b?label=version&style=for-the-badge
+[version-shield]: https://img.shields.io/badge/1.1.1-00c81b?label=version&style=for-the-badge
 [header-id]: #KanaConverter
