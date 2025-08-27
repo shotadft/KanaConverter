@@ -18,6 +18,9 @@ package com.shotadft.kanaconverter.io
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.shotadft.kanaconverter.KanaConverter.GROUP
+import com.shotadft.kanaconverter.KanaConverter.NAME
+import com.shotadft.kanaconverter.KanaConverter.VERSION
 import com.shotadft.kanaconverter.io.util.CompressUtil.gzip
 import com.shotadft.kanaconverter.io.util.CompressUtil.ungzip
 import com.shotadft.kanaconverter.map.util.LinkedFastStrMap
@@ -26,7 +29,6 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.ByteBuffer
-import java.time.Duration
 import java.time.Instant
 import java.util.zip.CRC32
 
@@ -45,28 +47,28 @@ internal class CacheManager {
      * @author Shotadft
      * @since 1.1
      */
-    fun save(fileName: String, data: LinkedFastStrMap, ttlSeconds: Long = Duration.ofDays(1).seconds) {
+    fun save(fileName: String, data: LinkedFastStrMap, ttlSeconds: Long) {
         val path = getCachePath(fileName)
         path.parentFile?.mkdirs()
 
         val serialized = serializeMap(data).encodeToByteArray()
         val compressedData = gzip(serialized)
 
+        // Create Header
         val expireAt = Instant.now().epochSecond + ttlSeconds
-        val headerBuffer = ByteBuffer.allocate(4 + 4 + 8)
+        val headerBuffer = ByteBuffer.allocate(16)
         headerBuffer.putInt(16)
-        headerBuffer.putInt(CACHE_VERSION)
+        headerBuffer.putInt(cacheVersion(compressedData.size))
         headerBuffer.putLong(expireAt)
         val headerBytes = headerBuffer.array()
 
         val finalBytes = headerBytes + compressedData
-
         path.writeBytes(finalBytes)
 
+        // Save CRC
         val crc = CRC32()
         crc.update(finalBytes)
-        val checksum = crc.value
-        val crcBytes = ByteBuffer.allocate(8).putLong(checksum).array()
+        val crcBytes = ByteBuffer.allocate(4).putInt(crc.value.toInt()).array()
         File("${path.absolutePath}.crc").writeBytes(crcBytes)
     }
 
@@ -87,22 +89,23 @@ internal class CacheManager {
 
         val allBytes = path.readBytes()
 
+        // CRC Verification
         val crc = CRC32()
         crc.update(allBytes)
-        val calculatedCrc = crc.value
-        val storedCrc = ByteBuffer.wrap(File("${path.absolutePath}.crc").readBytes()).long
+        val calculatedCrc = crc.value.toInt()
+        val storedCrc = ByteBuffer.wrap(File("${path.absolutePath}.crc").readBytes()).int
         if (calculatedCrc != storedCrc)
             throw IllegalStateException("CRC check failed! Data may be corrupted.")
 
-        val headerLength = ByteBuffer.wrap(allBytes.sliceArray(0..3)).int
+        // Load Header
+        val headerBuffer = ByteBuffer.wrap(allBytes, 0, 16)
+        val headerLength = headerBuffer.int
         if (headerLength != 16)
             throw IllegalStateException("Invalid header length")
-
-        val headerBuffer = ByteBuffer.wrap(allBytes.sliceArray(0 until 16))
-        headerBuffer.position(4)
         val version = headerBuffer.int
         val expireAt = headerBuffer.long
 
+        // Time Verification
         if (Instant.now().epochSecond > expireAt)
             throw IllegalStateException("Cache expired! Version: $version")
 
@@ -114,7 +117,7 @@ internal class CacheManager {
     private companion object {
         private val mapper by lazy { ObjectMapper().registerKotlinModule() }
 
-        private const val CACHE_VERSION = 11_08923812
+        private fun cacheVersion(len: Int) = (len / VERSION)
 
         /**
          * Serializes a LinkedFastStrMap to a JSON string.
@@ -168,18 +171,19 @@ internal class CacheManager {
         private fun getCachePath(fileName: String): File {
             val os = System.getProperty("os.name").lowercase()
             val userHome = System.getProperty("user.home")
+            val cachePath = "$GROUP.$NAME"
 
             return when {
                 os.contains("win") -> {
-                    File("$userHome\\AppData\\Local\\Temp\\$fileName")
+                    File("$userHome\\AppData\\Local\\Temp\\$cachePath\\$fileName")
                 }
 
                 os.contains("mac") -> {
-                    File("$userHome/Library/Application Support/com.shotadft.kanaconverter/$fileName")
+                    File("$userHome/Library/Application Support/$cachePath/$fileName")
                 }
 
                 else -> {
-                    File("$userHome/.cache/com.shotadft.kanaconverter/$fileName")
+                    File("$userHome/.cache/$cachePath/$fileName")
                 }
             }
         }

@@ -28,6 +28,10 @@ import com.shotadft.kanaconverter.util.ConvertUtil
  */
 @Suppress("Unused")
 object KanaConverter {
+    internal const val GROUP = "com.shotadft"
+    internal const val NAME = "kanaconverter"
+    internal const val VERSION = 1_1_1
+
     /**
      * @author Shotadft
      * @since 1.0

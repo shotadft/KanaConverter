@@ -35,7 +35,7 @@ internal class RomajiConverter : IConverter {
 
             when {
                 i + 1 < input.length &&
-                        c in 'a'..'z' && c !in listOf('a','i','u','e','o','n') &&
+                        c in 'a'..'z' && c !in listOf('a', 'i', 'u', 'e', 'o', 'n') &&
                         input[i + 1].lowercaseChar() == c -> {
                     var count = 0
                     while (i + count < input.length &&
