@@ -160,7 +160,7 @@ internal class MapBuilder {
 
         private val VOWELS = objectLinkedOpenSetOf('a', 'i', 'u', 'e', 'o')
         private val CONSONANTS = objectLinkedOpenSetOf(null, 'k', 's', 't', 'n', 'h', 'm', 'y', 'r', 'w')
-        private val N_CONSONANTS = objectOpenSetOf("n", "n'", "nn")
+        private val N_CONSONANTS = objectOpenSetOf("n", "nn", "n'")
         private val KANA = listOf<List<Char?>>(
             listOf('あ', 'い', 'う', 'え', 'お'),
             listOf('か', 'き', 'く', 'け', 'こ'),

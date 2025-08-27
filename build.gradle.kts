@@ -15,10 +15,15 @@ plugins {
 }
 
 group = "com.shotadft"
-version = "1.1"
+version = "1.1.1"
 
 repositories {
     mavenCentral()
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 kotlin {
