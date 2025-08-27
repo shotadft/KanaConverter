@@ -27,6 +27,7 @@ import com.shotadft.kanaconverter.map.util.MapperUtil.objectLinkedOpenSetOf
 import com.shotadft.kanaconverter.map.util.MapperUtil.objectOpenSetOf
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet
 import java.io.FileNotFoundException
+import java.time.Duration
 
 /**
  * @author Shotadft
@@ -54,12 +55,11 @@ internal class MapBuilder {
      */
     internal fun build(): LinkedFastStrMap =
         runCatching { cacheManager.load(CACHE_NAME) }
-        .onFailure {
-            if (it is FileNotFoundException) System.err.println(it.message)
-            else it.printStackTrace()
-        }
-        .getOrNull() ?: buildBaseMap()
-        .apply {
+            .onFailure {
+                if (it is FileNotFoundException) System.err.println(it.message)
+                else it.printStackTrace()
+            }
+            .getOrNull() ?: buildBaseMap().apply {
             listOf(
                 buildVCMap(),
                 buildSmallKanaMap(),
@@ -67,7 +67,13 @@ internal class MapBuilder {
             ).forEach { putAll(it) }
             addHepburnMap(this)
             putAll(buildSidetoneMap(this))
-        }.also { cacheManager.save(CACHE_NAME, it) }
+        }.also {
+            cacheManager.save(
+                fileName = CACHE_NAME,
+                data = it,
+                ttlSeconds = Duration.ofHours(2L).toSeconds()
+            )
+        }
 
     /**
      * Builds the base kana-to-romanization map without using the cache.
@@ -155,12 +161,12 @@ internal class MapBuilder {
         }
 
     private companion object {
-        private const val CACHE_NAME = "MAPCACHE.bin"
+        private const val CACHE_NAME = "MAPCACHE.gz.dat"
         private val cacheManager = CacheManager()
 
         private val VOWELS = objectLinkedOpenSetOf('a', 'i', 'u', 'e', 'o')
         private val CONSONANTS = objectLinkedOpenSetOf(null, 'k', 's', 't', 'n', 'h', 'm', 'y', 'r', 'w')
-        private val N_CONSONANTS = objectOpenSetOf("n", "n'", "nn")
+        private val N_CONSONANTS = objectOpenSetOf("n", "nn", "n'")
         private val KANA = listOf<List<Char?>>(
             listOf('あ', 'い', 'う', 'え', 'お'),
             listOf('か', 'き', 'く', 'け', 'こ'),

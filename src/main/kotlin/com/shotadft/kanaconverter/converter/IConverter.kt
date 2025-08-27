@@ -13,21 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.shotadft.kanaconverter.test
+package com.shotadft.kanaconverter.converter
 
-import com.shotadft.kanaconverter.KanaConverter.toHiragana
-import com.shotadft.kanaconverter.KanaConverter.toKatakana
-import com.shotadft.kanaconverter.KanaConverter.toRomaji
-
-fun main() {
-    print("a: ")
-    val str1 = readln()
-    val res11 = str1.toHiragana()
-    val res12 = str1.toKatakana()
-    print("b: ")
-    val str2 = readln()
-    val res21 = str2.toRomaji()
-    println("toHiragana -> \"$res11\"")
-    println("toKatakana -> \"$res12\"")
-    println("toRomaji   -> \"$res21\"")
+internal interface IConverter {
+    fun convert(input: CharSequence): String
 }

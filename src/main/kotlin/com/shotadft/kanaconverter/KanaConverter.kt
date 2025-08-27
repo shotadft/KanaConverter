@@ -15,10 +15,11 @@
  */
 package com.shotadft.kanaconverter
 
+import com.shotadft.kanaconverter.converter.KanaConverter
 import com.shotadft.kanaconverter.converter.RomajiConverter
-import com.shotadft.kanaconverter.type.ConvertType
-import com.shotadft.kanaconverter.type.ConvertType.JAPANESE
-import com.shotadft.kanaconverter.type.ConvertType.ROMAJI
+import com.shotadft.kanaconverter.converter.type.ConvertType
+import com.shotadft.kanaconverter.converter.type.ConvertType.JAPANESE
+import com.shotadft.kanaconverter.converter.type.ConvertType.ROMAJI
 import com.shotadft.kanaconverter.util.ConvertUtil
 
 /**
@@ -26,33 +27,59 @@ import com.shotadft.kanaconverter.util.ConvertUtil
  * @since 1.1
  */
 @Suppress("Unused")
-class KanaConverter {
-    companion object {
-        /**
-         * @author Shotadft
-         * @since 1.0
-         */
-        @JvmStatic
-        fun CharSequence.toHiragana(type: ConvertType = ROMAJI): String = when (type) {
-            ROMAJI -> RomajiConverter().convert(this)
-            JAPANESE -> ConvertUtil.toHiragana(this)
-        }
+object KanaConverter {
+    internal const val GROUP = "com.shotadft"
+    internal const val NAME = "kanaconverter"
+    internal const val VERSION = 1_1_1
 
-        /**
-         * @author Shotadft
-         * @since 1.0
-         */
-        @JvmStatic
-        fun CharSequence.toKatakana(type: ConvertType = ROMAJI): String = when (type) {
-            ROMAJI -> ConvertUtil.toKatakana(this.toHiragana(type = ROMAJI))
-            JAPANESE -> ConvertUtil.toKatakana(this)
-        }
+    /**
+     * Converts this [CharSequence] to Hiragana.
+     *
+     * The conversion method depends on [type]:
+     * - [ROMAJI]: Converts from Romaji to Hiragana.
+     * - [JAPANESE]: Converts from Japanese text to Hiragana.
+     *
+     * @param type The conversion type (default is [ROMAJI]).
+     * @return A string containing the converted Hiragana text.
+     * @author Shotadft
+     * @since 1.0
+     */
+    @JvmStatic
+    fun CharSequence.toHiragana(type: ConvertType = ROMAJI): String = when (type) {
+        ROMAJI -> RomajiConverter().convert(this)
+        JAPANESE -> ConvertUtil.toHiragana(this)
+    }
 
-        /**
-         * @author Shotadft
-         * @since 1.1
-         */
-        @JvmStatic
-        fun CharSequence.toRomaji(): String = this.toString() // TODO: ひらがな/カタカナからローマ字へ変換
+    /**
+     * Converts this [CharSequence] to Katakana.
+     *
+     * The conversion method depends on [type]:
+     * - [ROMAJI]: Converts from Romaji to Hiragana first, then to Katakana.
+     * - [JAPANESE]: Converts from Japanese text directly to Katakana.
+     *
+     * @param type The conversion type (default is [ROMAJI]).
+     * @return A string containing the converted Katakana text.
+     * @author Shotadft
+     * @since 1.0
+     */
+    @JvmStatic
+    fun CharSequence.toKatakana(type: ConvertType = ROMAJI): String = when (type) {
+        ROMAJI -> ConvertUtil.toKatakana(this.toHiragana(type = ROMAJI))
+        JAPANESE -> ConvertUtil.toKatakana(this)
+    }
+
+    /**
+     * Converts this [CharSequence] from Japanese text to Romaji.
+     *
+     * First converts the text to Hiragana, then converts the Hiragana to Romaji.
+     *
+     * @return A string containing the converted Romaji text.
+     * @author Shotadft
+     * @since 1.1
+     */
+    @JvmStatic
+    fun CharSequence.toRomaji(): String {
+        val unified = ConvertUtil.toHiragana(this)
+        return KanaConverter().convert(unified)
     }
 }

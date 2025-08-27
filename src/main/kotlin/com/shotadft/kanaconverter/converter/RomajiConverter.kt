@@ -21,13 +21,13 @@ import com.shotadft.kanaconverter.map.Mapper
  * @author Shotadft
  * @since 1.1
  */
-class RomajiConverter {
+internal class RomajiConverter : IConverter {
     /**
      * Convert hiragana to Roman letters
      * @author Shotadft
      * @since 1.1
      */
-    fun convert(input: CharSequence): String = buildString {
+    override fun convert(input: CharSequence): String = buildString {
         var i = 0
         while (i < input.length) {
             val c = input[i].lowercaseChar()
@@ -35,7 +35,7 @@ class RomajiConverter {
 
             when {
                 i + 1 < input.length &&
-                        c in 'a'..'z' && c !in listOf('a','i','u','e','o','n') &&
+                        c in 'a'..'z' && c !in listOf('a', 'i', 'u', 'e', 'o', 'n') &&
                         input[i + 1].lowercaseChar() == c -> {
                     var count = 0
                     while (i + count < input.length &&

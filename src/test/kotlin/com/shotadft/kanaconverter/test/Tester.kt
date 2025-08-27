@@ -15,8 +15,8 @@
  */
 package com.shotadft.kanaconverter.test
 
-import com.shotadft.kanaconverter.KanaConverter.Companion.toHiragana
-import com.shotadft.kanaconverter.KanaConverter.Companion.toKatakana
+import com.shotadft.kanaconverter.KanaConverter.toHiragana
+import com.shotadft.kanaconverter.KanaConverter.toKatakana
 import com.shotadft.kanaconverter.map.Mapper
 import kotlin.test.Test
 import kotlin.test.assertEquals
