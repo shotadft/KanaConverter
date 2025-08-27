@@ -3,7 +3,7 @@ import com.vanniktech.maven.publish.KotlinJvm
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 
 plugins {
-    kotlin("jvm") version "2.2.0"
+    kotlin("jvm") version "2.2.10"
     `java-library`
     // dokka
     id("org.jetbrains.dokka") version "2.0.0"
