@@ -15,35 +15,32 @@ This is a library that converts Roman letters to both hiragana and katakana and 
 <dependency>
     <groupId>com.shotadft</groupId>
     <artifactId>kana-converter</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 </dependency>
 ```
 ### Gradle(Groovy DSL)
 ```groovy
 dependencies {
-    implementation 'com.shotadft:kana-converter:1.1.1'
+    implementation 'com.shotadft:kana-converter:1.1.2'
 }
 ```
 ### Gradle(Kotlin DSL)
 ```kts
 dependencies {
-    implementation("com.shotadft:kana-converter:1.1.1")
+    implementation("com.shotadft:kana-converter:1.1.2")
 }
 ```
 
 ## Requirement
-- Java 21
-- fastutil (8.5.16)
-- Apache Commons Compress (1.28.0)
-- Jackson Module Kotlin (2.19.2)
+- Java (21)
+- Kotlin (2.2.10)
 
 ## Development Environments
 - IntelliJ IDEA Community Edition (2025.2)
 - Gradle (8.9)
   - dokka (2.0.0)
   - spotless (7.2.1)
-- Kotlin (2.2.0)
-  - Eclipse Temurin JDK (21.0.8+9)
+- Eclipse Temurin JDK (21.0.8+9)
 
 ## Usage
 ```kotlin
@@ -54,12 +51,13 @@ import com.shotadft.kanaconverter.KanaConverter.toRomaji
 fun main() {
     val hiragana = "こんにちは"
     val katakana = "コンニチハ"
-    val romaji = "konnichiwa"
+    val romaji = "kon'nichiha"
 
     println(hiragana.toKatakana()) // コンニチハ
-    println(katakana.toHiragana()) // こんにちは
-    println(hiragana.toRomaji())   // konnichiwa
-    println(katakana.toRomaji())   // konnichiwa
+    
+    println(hiragana.toRomaji())   // kon'nichiha
+    println(katakana.toRomaji())   // kon'nichiha
+    
     println(romaji.toHiragana())   // こんにちは
     println(romaji.toKatakana())   // コンニチハ
 }
@@ -67,7 +65,7 @@ fun main() {
 
 ## Features
 - 高速、そしてまあまあ高い精度で変換できます。<br>対応してないものがあるかもしれないけどその場合はIssueを立ててね<br>
-(ヘボンと訓令を両対応させる都合でtoRomajiの精度が酷いことになってるけどね...)
+(ただし、ヘボンと訓令を両対応させる都合でtoRomajiの精度がかなり低いです...)
 - fastutilのマップを簡単に構築できるツールを使用してメモリ消費量を抑えています。<br>また、キャッシュによって変換速度を向上させています。
 - IssueやPull Requestは大歓迎です。<br>バグ報告、機能追加、コード改善など何でもどうぞ。
 
@@ -87,5 +85,5 @@ fun main() {
 [license-url]: https://github.com/shotadft/KanaConverter/blob/master/LICENSE.md
 [central-shield]: https://img.shields.io/maven-central/v/com.shotadft/kana-converter?style=for-the-badge
 [central-url]: https://central.sonatype.com/artifact/com.shotadft/kana-converter
-[version-shield]: https://img.shields.io/badge/1.1.1-00c81b?label=version&style=for-the-badge
+[version-shield]: https://img.shields.io/badge/1.1.2-00c81b?label=version&style=for-the-badge
 [header-id]: #KanaConverter
