@@ -16,14 +16,10 @@
 package com.shotadft.kanaconverter.converter
 
 import com.shotadft.kanaconverter.map.Mapper
+import com.shotadft.kanaconverter.map.util.StrSet
 
-/**
- * @author Shotadft
- * @since 1.1
- */
 internal class KanaConverter : IConverter {
     /**
-     * Convert Roman letters to hiragana
      * @author Shotadft
      * @since 1.1
      */
@@ -32,12 +28,22 @@ internal class KanaConverter : IConverter {
         while (i < input.length) {
             var matched = false
 
-            for (len in 3 downTo 1) {
+            if (input[i] == 'っ' && i + 1 < input.length) {
+                val next = input[i + 1].toString()
+                val nextRomans = h2rMap[next]
+                if (!nextRomans.isNullOrEmpty()) {
+                    append(nextRomans.first()[0])
+                    i++
+                    continue
+                }
+            }
+
+            for (len in 2 downTo 1) {
                 if (i + len <= input.length) {
-                    val sub = input.subSequence(i, i + len).toString().lowercase()
-                    val kana = h2rMap[sub]
-                    if (kana != null) {
-                        append(kana.first())
+                    val sub = input.substring(i, i + len)
+                    val romans = h2rMap[sub]
+                    if (!romans.isNullOrEmpty()) {
+                        append(selectCandidate(romans))
                         i += len
                         matched = true
                         break
@@ -51,6 +57,11 @@ internal class KanaConverter : IConverter {
             }
         }
     }
+
+    /**
+     * Helper function to select a single romanization from candidates.
+     */
+    private fun selectCandidate(candidates: StrSet): String = candidates.first() ?: ""
 
     private companion object {
         private val h2rMap = Mapper.h2rMap

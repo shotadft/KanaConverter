@@ -23,7 +23,7 @@ import com.shotadft.kanaconverter.map.Mapper
  */
 internal class RomajiConverter : IConverter {
     /**
-     * Convert hiragana to Roman letters
+     * Convert Roman letters to Hiragana
      * @author Shotadft
      * @since 1.1
      */

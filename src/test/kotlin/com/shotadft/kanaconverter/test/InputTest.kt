@@ -20,14 +20,21 @@ import com.shotadft.kanaconverter.KanaConverter.toKatakana
 import com.shotadft.kanaconverter.KanaConverter.toRomaji
 
 fun main() {
+    val (h, k) = a()
+    val r = b()
+    println("toHiragana -> \"$h\"")
+    println("toKatakana -> \"$k\"")
+    println("toRomaji   -> \"$r\"")
+}
+
+private fun a(): Pair<String, String> {
     print("a: ")
     val str1 = readln()
-    val res11 = str1.toHiragana()
-    val res12 = str1.toKatakana()
+    return str1.toHiragana() to str1.toKatakana()
+}
+
+private fun b(): String {
     print("b: ")
     val str2 = readln()
-    val res21 = str2.toRomaji()
-    println("toHiragana -> \"$res11\"")
-    println("toKatakana -> \"$res12\"")
-    println("toRomaji   -> \"$res21\"")
+    return str2.toRomaji()
 }

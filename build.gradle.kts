@@ -1,6 +1,7 @@
 import com.vanniktech.maven.publish.JavadocJar
 import com.vanniktech.maven.publish.KotlinJvm
 import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
+import java.time.LocalDate
 
 plugins {
     kotlin("jvm") version "2.2.10"
@@ -85,6 +86,9 @@ spotless {
 
 val gitHubUserName = "shotadft"
 val gitHubRepoName = "KanaConverter"
+val projectName = project.rootProject.name
+    .split("-")
+    .joinToString("") { it.replaceFirstChar { c -> c.uppercase() } }
 
 mavenPublishing {
     publishToMavenCentral()
@@ -104,14 +108,14 @@ mavenPublishing {
     )
 
     pom {
-        name.set(project.rootProject.name)
+        name.set(projectName)
         description.set("This is a library that converts Roman letters to both hiragana and katakana and vice versa.")
-        inceptionYear.set("2025")
+        inceptionYear.set(LocalDate.now().year.toString())
         url.set("https://github.com/${gitHubUserName}/KanaConverter")
 
         licenses {
             license {
-                name.set("The Apache License, Version 2.0")
+                name.set("The Apache Software License, Version 2.0")
                 url.set("https://www.apache.org.licenses/LICENSE-2.0.txt")
                 distribution.set("repo")
             }
