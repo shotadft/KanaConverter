@@ -42,7 +42,7 @@ object KanaConverter {
      * @param type The conversion type (default is [ROMAJI]).
      * @return A string containing the converted Hiragana text.
      * @author Shotadft
-     * @since 1.0
+     * @since 1.1
      */
     @JvmStatic
     fun CharSequence.toHiragana(type: ConvertType = ROMAJI): String = when (type) {
@@ -60,7 +60,7 @@ object KanaConverter {
      * @param type The conversion type (default is [ROMAJI]).
      * @return A string containing the converted Katakana text.
      * @author Shotadft
-     * @since 1.0
+     * @since 1.1
      */
     @JvmStatic
     fun CharSequence.toKatakana(type: ConvertType = ROMAJI): String = when (type) {
@@ -75,7 +75,7 @@ object KanaConverter {
      *
      * @return A string containing the converted Romaji text.
      * @author Shotadft
-     * @since 1.1
+     * @since 1.1.1
      */
     @JvmStatic
     fun CharSequence.toRomaji(): String {
