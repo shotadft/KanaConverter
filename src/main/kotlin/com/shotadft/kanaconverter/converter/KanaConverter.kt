@@ -18,11 +18,11 @@ package com.shotadft.kanaconverter.converter
 import com.shotadft.kanaconverter.map.Mapper
 import com.shotadft.kanaconverter.map.util.StrSet
 
+/**
+ * @author Shotadft
+ * @since 1.1.1
+ */
 internal class KanaConverter : IConverter {
-    /**
-     * @author Shotadft
-     * @since 1.1
-     */
     override fun convert(input: CharSequence): String = buildString {
         var i = 0
         while (i < input.length) {

@@ -34,7 +34,7 @@ object Mapper {
     internal val r2hMap: Object2ObjectLinkedOpenHashMap<String, String> by lazy { h2rMap.invert() }
 
     @JvmStatic
-    internal fun LinkedFastStrMap.invert(): Object2ObjectLinkedOpenHashMap<String, String> =
+    private fun LinkedFastStrMap.invert(): Object2ObjectLinkedOpenHashMap<String, String> =
         linkedFastMapOf<String, String>().also { rev ->
             this.forEach { (k, v) ->
                 v.forEach { if (!rev.containsKey(it)) rev[it] = k }

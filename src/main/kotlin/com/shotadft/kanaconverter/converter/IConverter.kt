@@ -15,6 +15,15 @@
  */
 package com.shotadft.kanaconverter.converter
 
+/**
+ * @author Shotadft
+ * @since 1.1.1
+ */
 internal interface IConverter {
+    /**
+     * Convert characters
+     * @author Shotadft
+     * @since 1.1.1
+     */
     fun convert(input: CharSequence): String
 }

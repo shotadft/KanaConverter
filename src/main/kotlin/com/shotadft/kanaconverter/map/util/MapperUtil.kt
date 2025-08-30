@@ -42,7 +42,7 @@ internal object MapperUtil {
      * Entries of the map are iterated in the order they were added by the [builderAction].
      *
      * @author Shotadft
-     * @since 1.1
+     * @since 1.1.1
      */
     @Suppress("LEAKED_IN_PLACE_LAMBDA", "WRONG_INVOCATION_KIND")
     @OptIn(ExperimentalTypeInference::class, ExperimentalContracts::class)
@@ -58,7 +58,7 @@ internal object MapperUtil {
      *
      * The returned map preserves the entry iteration order.
      * @author Shotadft
-     * @since 1.1
+     * @since 1.1.1
      */
     fun <K, V> linkedFastMapOf(): Object2ObjectLinkedOpenHashMap<K, V> = Object2ObjectLinkedOpenHashMap()
 
@@ -71,7 +71,7 @@ internal object MapperUtil {
      * Entries of the map are iterated in the order they were specified.
      *
      * @author Shotadft
-     * @since 1.1
+     * @since 1.1.1
      */
     fun <K, V> linkedFastMapOf(vararg pairs: Pair<K, V>): Object2ObjectLinkedOpenHashMap<K, V> =
         Object2ObjectLinkedOpenHashMap<K, V>(mapCapacity(pairs.size)).apply { putAll(pairs) }
@@ -81,7 +81,7 @@ internal object MapperUtil {
      * The returned set does not preserve the element iteration order.
      *
      * @author Shotadft
-     * @since 1.1
+     * @since 1.1.1
      */
     fun <T> objectOpenSetOf(): ObjectOpenHashSet<T> = ObjectOpenHashSet()
 
@@ -90,7 +90,7 @@ internal object MapperUtil {
      * Elements of the set are iterated in no particular order.
      *
      * @author Shotadft
-     * @since 1.1
+     * @since 1.1.1
      */
     fun <T> objectOpenSetOf(vararg elements: T): ObjectOpenHashSet<T> =
         ObjectOpenHashSet<T>(mapCapacity(elements.size)).apply { addAll(elements) }
@@ -100,7 +100,7 @@ internal object MapperUtil {
      * The returned set preserves the element iteration order.
      *
      * @author Shotadft
-     * @since 1.1
+     * @since 1.1.1
      */
     fun <T> objectLinkedOpenSetOf(): ObjectLinkedOpenHashSet<T> = ObjectLinkedOpenHashSet()
 
@@ -109,7 +109,7 @@ internal object MapperUtil {
      * Elements of the set are iterated in the order they were specified.
      *
      * @author Shotadft
-     * @since 1.1
+     * @since 1.1.1
      */
     fun <T> objectLinkedOpenSetOf(vararg elements: T): ObjectLinkedOpenHashSet<T> =
         ObjectLinkedOpenHashSet<T>(mapCapacity(elements.size)).apply { addAll(elements) }

@@ -19,14 +19,9 @@ import com.shotadft.kanaconverter.map.Mapper
 
 /**
  * @author Shotadft
- * @since 1.1
+ * @since 1.1.1
  */
 internal class RomajiConverter : IConverter {
-    /**
-     * Convert Roman letters to Hiragana
-     * @author Shotadft
-     * @since 1.1
-     */
     override fun convert(input: CharSequence): String = buildString {
         var i = 0
         while (i < input.length) {

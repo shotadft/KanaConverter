@@ -24,11 +24,11 @@ import com.shotadft.kanaconverter.KanaConverter.VERSION
 import com.shotadft.kanaconverter.io.util.CompressUtil.gzip
 import com.shotadft.kanaconverter.io.util.CompressUtil.ungzip
 import com.shotadft.kanaconverter.map.util.LinkedFastStrMap
-import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet
 import java.io.File
 import java.io.FileNotFoundException
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.time.Instant
 import java.util.zip.CRC32
 
@@ -37,12 +37,14 @@ import java.util.zip.CRC32
  * @since 1.1
  */
 internal class CacheManager {
+
     /**
      * Saves the given map to a cache file. The data is serialized to JSON,
      * compressed with Gzip, and stored along with a CRC32 checksum for integrity.
      *
      * @param fileName The name of the cache file.
      * @param data The LinkedFastStrMap to be saved.
+     * @param ttlSeconds Time-to-live in seconds.
      * @author Shotadft
      * @since 1.1
      */
@@ -50,25 +52,28 @@ internal class CacheManager {
         val path = getCachePath(fileName)
         path.parentFile?.mkdirs()
 
-        val serialized = serializeMap(data).encodeToByteArray()
+        val serialized = serializeMap(data)
         val compressedData = gzip(serialized)
 
-        // Create Header
+        // Create Header (16 bytes) with pre-allocated buffer
         val expireAt = Instant.now().epochSecond + ttlSeconds
-        val headerBuffer = ByteBuffer.allocate(16)
-        headerBuffer.putInt(16)
-        headerBuffer.putInt(cacheVersion(compressedData.size))
-        headerBuffer.putLong(expireAt)
-        val headerBytes = headerBuffer.array()
+        val header = ByteBuffer.allocate(HEADER_SIZE)
+            .order(ByteOrder.BIG_ENDIAN)
+            .putInt(HEADER_SIZE)
+            .putInt(CACHE_VERSION)
+            .putLong(expireAt)
+            .array()
 
-        val finalBytes = headerBytes + compressedData
-        path.writeBytes(finalBytes)
+        val body = header + compressedData
 
-        // Save CRC
-        val crc = CRC32()
-        crc.update(finalBytes)
-        val crcBytes = ByteBuffer.allocate(4).putInt(crc.value.toInt()).array()
-        File("${path.absolutePath}.crc").writeBytes(crcBytes)
+        // Calculate CRC32 and write file
+        val crcValue = calculateCRC32(body)
+        val finalData = ByteBuffer.allocate(body.size + CRC_SIZE)
+            .put(body)
+            .putInt(crcValue)
+            .array()
+
+        path.writeBytes(finalData)
     }
 
     /**
@@ -77,112 +82,120 @@ internal class CacheManager {
      *
      * @param fileName The name of the cache file to load.
      * @return The decompressed and deserialized LinkedFastStrMap.
-     * @throws IllegalStateException if the cache files are not found or if the CRC check fails.
+     * @throws IllegalStateException if the cache is corrupted, expired, or has wrong version.
+     * @throws FileNotFoundException if the cache file does not exist.
      * @author Shotadft
      * @since 1.1
      */
     fun load(fileName: String): LinkedFastStrMap {
         val path = getCachePath(fileName)
-        if (!exists(fileName))
-            throw FileNotFoundException("Cache files not found: ${path.absolutePath}")
+        if (!path.exists()) {
+            throw FileNotFoundException("Cache file not found: ${path.absolutePath}")
+        }
 
         val allBytes = path.readBytes()
+        if (allBytes.size < MIN_FILE_SIZE) {
+            throw IllegalStateException("Cache file corrupted: file too small")
+        }
 
-        // CRC Verification
-        val crc = CRC32()
-        crc.update(allBytes)
-        val calculatedCrc = crc.value.toInt()
-        val storedCrc = ByteBuffer.wrap(File("${path.absolutePath}.crc").readBytes()).int
-        if (calculatedCrc != storedCrc)
+        // Extract and verify CRC
+        val body = allBytes.sliceArray(0 until allBytes.size - CRC_SIZE)
+        val storedCrc = ByteBuffer.wrap(allBytes, allBytes.size - CRC_SIZE, CRC_SIZE)
+            .order(ByteOrder.BIG_ENDIAN)
+            .int
+
+        val calculatedCrc = calculateCRC32(body)
+        if (calculatedCrc != storedCrc) {
             throw IllegalStateException("CRC check failed! Data may be corrupted.")
+        }
 
-        // Load Header
-        val headerBuffer = ByteBuffer.wrap(allBytes, 0, 16)
+        // Parse and validate header
+        val headerBuffer = ByteBuffer.wrap(body, 0, HEADER_SIZE).order(ByteOrder.BIG_ENDIAN)
         val headerLength = headerBuffer.int
-        if (headerLength != 16)
-            throw IllegalStateException("Invalid header length")
+        if (headerLength != HEADER_SIZE) {
+            throw IllegalStateException("Invalid header length: $headerLength")
+        }
+
         val version = headerBuffer.int
+        if (version != CACHE_VERSION) {
+            throw IllegalStateException("Unsupported cache version: $version")
+        }
+
         val expireAt = headerBuffer.long
+        if (Instant.now().epochSecond > expireAt) {
+            throw IllegalStateException("Cache expired!")
+        }
 
-        // Time Verification
-        if (Instant.now().epochSecond > expireAt)
-            throw IllegalStateException("Cache expired! Version: $version")
-
-        val compressedData = allBytes.sliceArray(16 until allBytes.size)
+        // Decompress and deserialize
+        val compressedData = body.sliceArray(HEADER_SIZE until body.size)
         val decompressedData = ungzip(compressedData)
         return deserializeMap(decompressedData)
     }
 
-    private companion object {
-        private val mapper by lazy { ObjectMapper().registerKotlinModule() }
+    private fun calculateCRC32(data: ByteArray): Int {
+        val crc = CRC32()
+        crc.update(data)
+        return (crc.value and 0xffffffffL).toInt()
+    }
 
-        private fun cacheVersion(len: Int) = (len / VERSION)
+    private companion object {
+        private val pathCache = hashMapOf<String, File>()
+
+        private val mapper by lazy {
+            ObjectMapper()
+                .registerKotlinModule()
+                .findAndRegisterModules()
+        }
+
+        private const val HEADER_SIZE = 16
+        private const val CRC_SIZE = 4
+        private const val MIN_FILE_SIZE = HEADER_SIZE + CRC_SIZE
+        private const val CACHE_VERSION = (VERSION * 10) + MIN_FILE_SIZE
 
         /**
-         * Serializes a LinkedFastStrMap to a JSON string.
-         *
-         * @param map The map to serialize.
-         * @return A JSON string representing the map.
-         * @author Shotadft
-         * @since 1.1
+         * Serializes a LinkedFastStrMap to a byte array efficiently.
+         * Uses direct byte array serialization to avoid string encoding overhead.
          */
-        private fun serializeMap(map: LinkedFastStrMap): String =
-            mapper.writeValueAsString(map.mapValues { it.value.toList() })
+        private fun serializeMap(map: LinkedFastStrMap): ByteArray {
+            val serializable = map.mapValues { it.value.toList() }
+            return mapper.writeValueAsBytes(serializable)
+        }
 
         /**
          * Deserializes a byte array containing JSON data into a LinkedFastStrMap.
-         *
-         * @param json The byte array of JSON data.
-         * @return The deserialized LinkedFastStrMap.
-         * @author Shotadft
-         * @since 1.1
+         * Optimized for direct conversion without intermediate objects.
          */
-        private fun deserializeMap(json: ByteArray): LinkedFastStrMap =
-            mapper.readValue(json, object : TypeReference<LinkedFastStrMap>() {
-                override fun getType() = mapper.typeFactory.constructMapType(
-                    Object2ObjectLinkedOpenHashMap::class.java,
-                    String::class.java,
-                    ObjectOpenHashSet::class.java
-                )
-            })
+        private fun deserializeMap(json: ByteArray): LinkedFastStrMap {
+            val typeRef = object : TypeReference<Map<String, List<String>>>() {}
+            val deserializedMap: Map<String, List<String>> = mapper.readValue(json, typeRef)
 
-        /**
-         * Checks if the cache files (data and CRC) for the given file name exist.
-         *
-         * @param fileName The name of the cache file.
-         * @return `true` if both the data and CRC files exist, `false` otherwise.
-         * @author Shotadft
-         * @since 1.1
-         */
-        private fun exists(fileName: String): Boolean {
-            val path = getCachePath(fileName)
-            return path.exists() && File("${path.absolutePath}.crc").exists()
+            // Efficient conversion back to LinkedFastStrMap
+            val result = LinkedFastStrMap()
+            deserializedMap.forEach { (key, valueList) ->
+                result[key] = ObjectOpenHashSet<String>().apply { addAll(valueList) }
+            }
+            return result
         }
 
         /**
          * Determines the appropriate cache path based on the operating system.
-         *
-         * @param fileName The name of the file to be cached.
-         * @return The platform-specific File path.
-         * @author Shotadft
-         * @since 1.1
+         * Uses cache to avoid repeated system property lookups.
          */
         private fun getCachePath(fileName: String): File {
-            val os = System.getProperty("os.name").lowercase()
-            val userHome = System.getProperty("user.home")
-            val cachePath = "$GROUP.$NAME"
+            return pathCache.computeIfAbsent(fileName) { name ->
+                val os = System.getProperty("os.name")?.lowercase() ?: ""
+                val userHome = System.getProperty("user.home") ?: ""
+                val cachePath = "$GROUP.$NAME"
 
-            return when {
-                os.contains("win") -> {
-                    File("$userHome\\AppData\\Local\\Temp\\$cachePath\\$fileName")
-                }
+                when {
+                    os.contains("win") ->
+                        File("$userHome\\AppData\\Local\\Temp\\$cachePath\\$name")
 
-                os.contains("mac") -> {
-                    File("$userHome/Library/Application Support/$cachePath/$fileName")
-                }
+                    os.contains("mac") ->
+                        File("$userHome/Library/Application Support/$cachePath/$name")
 
-                else -> {
-                    File("$userHome/.cache/$cachePath/$fileName")
+                    else ->
+                        File("$userHome/.cache/$cachePath/$name")
                 }
             }
         }
