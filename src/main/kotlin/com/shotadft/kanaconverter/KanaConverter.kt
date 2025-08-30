@@ -30,7 +30,7 @@ import com.shotadft.kanaconverter.util.ConvertUtil
 object KanaConverter {
     internal const val GROUP = "com.shotadft"
     internal const val NAME = "kanaconverter"
-    internal const val VERSION = 1_1_1
+    internal const val VERSION = 1_1_2
 
     /**
      * Converts this [CharSequence] to Hiragana.
