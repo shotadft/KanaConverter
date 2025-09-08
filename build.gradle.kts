@@ -34,7 +34,7 @@ kotlin {
 dependencies {
     implementation("it.unimi.dsi:fastutil:8.5.16")
     implementation("org.apache.commons:commons-compress:1.28.0")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.0")
 
     testImplementation(kotlin("test"))
     testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
