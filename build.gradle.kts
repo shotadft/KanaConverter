@@ -32,7 +32,7 @@ kotlin {
 }
 
 dependencies {
-    implementation("it.unimi.dsi:fastutil:8.5.16")
+    implementation("it.unimi.dsi:fastutil:8.5.18")
     implementation("org.apache.commons:commons-compress:1.28.0")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.19.2")
 
