@@ -7,7 +7,7 @@ plugins {
     kotlin("jvm") version "2.2.20"
     `java-library`
     // dokka
-    id("org.jetbrains.dokka") version "2.0.0"
+    id("org.jetbrains.dokka") version "2.1.0"
     id("org.jetbrains.dokka-javadoc") version "2.0.0"
     // spotless
     id("com.diffplug.spotless") version "8.0.0"
