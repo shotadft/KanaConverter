@@ -16,7 +16,7 @@ plugins {
 }
 
 group = "com.shotadft"
-version = "1.1.2"
+version = "1.1.3"
 
 repositories {
     mavenCentral()
@@ -37,7 +37,6 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.20.1")
 
     testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.13.4")
 }
 
 tasks.test {
@@ -95,9 +94,9 @@ mavenPublishing {
     signAllPublications()
 
     coordinates(
-        groupId = group.toString(),
+        groupId = group as String,
         artifactId = project.rootProject.name,
-        version = version.toString()
+        version = version as String
     )
 
     configure(
