@@ -30,7 +30,6 @@ internal typealias LinkedFastStrMap = Object2ObjectLinkedOpenHashMap<String, Str
  * @author Shotadft
  * @since 1.1
  */
-@Suppress("Unused")
 internal object MapperUtil {
     /**
      * Builds a new [Object2ObjectLinkedOpenHashMap] by populating a mutable map
@@ -75,6 +74,13 @@ internal object MapperUtil {
      */
     fun <K, V> linkedFastMapOf(vararg pairs: Pair<K, V>): Object2ObjectLinkedOpenHashMap<K, V> =
         Object2ObjectLinkedOpenHashMap<K, V>(mapCapacity(pairs.size)).apply { putAll(pairs) }
+
+    /**
+     * @author Shotadft
+     * @since 1.1.3
+     */
+    fun <K, V> linkedFastMapOf(maps: Map<K, V>): Object2ObjectLinkedOpenHashMap<K, V> =
+        Object2ObjectLinkedOpenHashMap<K, V>(mapCapacity(maps.size)).apply { putAll(maps) }
 
     /**
      * Returns an empty new [ObjectOpenHashSet].
