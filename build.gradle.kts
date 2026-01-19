@@ -12,7 +12,7 @@ plugins {
     // spotless
     id("com.diffplug.spotless") version "8.0.0"
     // Maven Central
-    id("com.vanniktech.maven.publish") version "0.34.0"
+    id("com.vanniktech.maven.publish") version "0.36.0"
 }
 
 group = "com.shotadft"
