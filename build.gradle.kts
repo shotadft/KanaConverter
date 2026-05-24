@@ -10,7 +10,7 @@ plugins {
     id("org.jetbrains.dokka") version "2.1.0"
     id("org.jetbrains.dokka-javadoc") version "2.1.0"
     // spotless
-    id("com.diffplug.spotless") version "8.0.0"
+    id("com.diffplug.spotless") version "8.5.1"
     // Maven Central
     id("com.vanniktech.maven.publish") version "0.34.0"
 }
