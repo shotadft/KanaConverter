@@ -18,6 +18,7 @@ package com.shotadft.kanaconverter;
 import com.shotadft.kanaconverter.trie.Trie;
 import org.jspecify.annotations.NonNull;
 
+import java.util.Locale;
 import java.util.Map;
 
 public final class KanaConverter {
@@ -222,11 +223,18 @@ public final class KanaConverter {
                     continue;
                 }
 
-                char next = romaji.charAt(i + 1);
+                char next =
+                        i + 1 < romaji.length()
+                                ? romaji.charAt(i + 1)
+                                : '\0';
+                char afterNext =
+                        i + 2 < romaji.length()
+                                ? romaji.charAt(i + 2)
+                                : '\0';
 
-                if (next == 'n') {
+                if (next == 'n' && !isVowel(afterNext)) {
                     result.append('ん');
-                    i++;
+                    i += 2;
                     continue;
                 }
 
@@ -241,17 +249,17 @@ public final class KanaConverter {
             String bestKana = null;
             int bestLen = 0;
 
-            for (int j = i + 1; j <= romaji.length(); j++) {
-                String part = romaji.substring(i, j);
+            Trie.Node node = trie.getRoot();
 
-                if (!trie.hasPrefix(part))
+            for (int j = i; j < romaji.length(); j++) {
+                node = node.next(romaji.charAt(j));
+
+                if (node == null)
                     break;
 
-                String kana = trie.search(part);
-
-                if (kana != null) {
-                    bestKana = kana;
-                    bestLen = part.length();
+                if (node.getKana() != null) {
+                    bestKana = node.getKana();
+                    bestLen = j - i + 1;
                 }
             }
 

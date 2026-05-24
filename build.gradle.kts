@@ -16,7 +16,9 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.jspecify)
+    api(libs.jspecify)
+
+    implementation(libs.fastutil)
 
     testImplementation(platform("org.junit:junit-bom:6.1.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
@@ -28,14 +30,16 @@ tasks.test {
 }
 
 java {
-    sourceCompatibility = JavaVersion.toVersion(targetJavaVersion)
-    targetCompatibility = JavaVersion.toVersion(targetJavaVersion)
     toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+}
+
+tasks.withType<JavaCompile>().configureEach {
+    options.encoding = "UTF-8"
 }
 
 spotless {
     java {
-        target("src/**/java/**/*.java")
+        target("src/**/*.java")
         licenseHeaderFile(rootProject.file("config/license-header.txt"))
     }
 }
