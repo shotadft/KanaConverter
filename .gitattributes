@@ -1,0 +1,37 @@
+##########################################################################
+# Set default behavior to automatically normalize line endings.
+##########################################################################
+*                           text=auto eol=lf
+*.[cC][mM][dD]              text eol=crlf
+*.[bB][aA][tT]              text eol=crlf
+
+##########################################################################
+# behavior for image files
+##########################################################################
+*.[bB][mM][pP]              binary
+*.[jJ][pP][gG]              binary
+*.[jJ][pP][eE][gG]          binary
+*.[jJ][fF][iI][fF]          binary
+*.[pP][jJ][pP][eE][gG]      binary
+*.[pP][jJ][pP]              binary
+*.[pP][nN][gG]              binary
+*.[gG][iI][fF]              binary
+*.[iI][cC][oO]              binary
+*.[tT][iI][fF][fF]          binary
+*.[wW][eE][bB][pP]          binary
+*.[sS][vV][gG][zZ]          binary
+
+##########################################################################
+# behavior for execution and library files
+##########################################################################
+*.[oO][uU][tT]              binary
+*.[eE][xX][eE]              binary
+*.[aA][pP][pP]              binary
+*.[jJ][aA][rR]              binary
+*.[sS][oO]                  binary
+*.[aA]                      binary
+*.[dD][lL][lL]              binary
+*.[lL][iI][bB]              binary
+*.[dD][yY][lL][iI][bB]      binary
+*.[pP][yY][dD]              binary
+*.[pP][yY][cC]              binary
