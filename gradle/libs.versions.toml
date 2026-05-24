@@ -1,5 +1,12 @@
 [versions]
+spotless = "8.5.1"
+maven-publish = "0.36.0"
+
 jspecify = "1.0.0"
 
 [libraries]
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
+
+[plugins]
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "maven-publish" }
