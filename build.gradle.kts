@@ -8,7 +8,7 @@ plugins {
     `java-library`
     // dokka
     id("org.jetbrains.dokka") version "2.1.0"
-    id("org.jetbrains.dokka-javadoc") version "2.1.0"
+    id("org.jetbrains.dokka-javadoc") version "2.2.0"
     // spotless
     id("com.diffplug.spotless") version "8.0.0"
     // Maven Central
