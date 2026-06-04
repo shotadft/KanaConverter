@@ -4,7 +4,7 @@ import org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier
 import java.time.LocalDate
 
 plugins {
-    kotlin("jvm") version "2.2.21"
+    kotlin("jvm") version "2.4.0"
     `java-library`
     // dokka
     id("org.jetbrains.dokka") version "2.1.0"
